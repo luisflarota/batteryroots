@@ -1,0 +1,95 @@
+/* src/styles/index.css */
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #F5F7FA;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+}
+
+/* Map Styles */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  background: #F5F7FA !important;
+}
+
+/* Tooltip Styles */
+.custom-tooltip {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  padding: 0 !important;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* Flow Line Styles */
+.flow-line {
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Marker Styles */
+.map-marker {
+  transition: fill-opacity 0.3s ease;
+  cursor: pointer;
+}
+
+/* Legend Styles */
+.legend-item {
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+}
+
+.legend-item:hover {
+  opacity: 0.8;
+}
+
+/* General Transitions */
+* {
+  transition: all 0.2s ease;
+}
+
+.flow-arrow {
+  background: none !important;
+  border: none !important;
+}
+
+.flow-arrow svg {
+  filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.2));
+}
+
+.flow-line {
+  transition: all 0.3s ease;
+  pointer-events: none;
+  stroke-dasharray: 5, 5;  /* Creates a dashed line effect */
+  animation: flowAnimation 1s linear infinite;  /* Animates the dashes */
+}
+
+@keyframes flowAnimation {
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.leaflet-overlay-pane svg path {
+  stroke-dasharray: 12 12;
+  animation: flowAnimation 1s linear infinite;
+}
