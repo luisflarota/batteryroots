@@ -1,7 +1,6 @@
-// src/components/Dashboard/WorldMap.jsx
 import React from 'react';
 import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from 'react-leaflet';
-import { Box, Paper, Typography, Chip } from '@mui/material';
+import { Box, Paper, Typography, Chip, Slider } from '@mui/material';
 import L from 'leaflet';
 import { supplyChainData } from '../../data/dummy-data';
 import 'leaflet/dist/leaflet.css';
@@ -94,7 +93,8 @@ const Legend = ({ onStageSelect, selectedStage, data }) => (
     )}
   </Paper>
 );
-const FlowLines = ({ data, selectedStage }) => {
+
+const FlowLines = ({ data, selectedStage, selectedYear }) => {
   const map = useMap();
 
   React.useEffect(() => {
@@ -119,7 +119,8 @@ const FlowLines = ({ data, selectedStage }) => {
       });
     };
 
-    data.links.forEach(link => {
+    const yearData = data.dataByYear[selectedYear];
+    yearData.links.forEach(link => {
       const fromLocations = data.locations[link.source];
       const toLocations = data.locations[link.target];
 
@@ -128,8 +129,8 @@ const FlowLines = ({ data, selectedStage }) => {
           const fromPoint = [from.coordinates[1], from.coordinates[0]];
           const toPoint = [to.coordinates[1], to.coordinates[0]];
 
-          // Calculate line width based on the values of connected locations
-          const lineWidth = Math.sqrt((from.value + to.value) / 2) / 2;
+          // Calculate line width based on the value of the link
+          const lineWidth = Math.sqrt(link.value) / 2;
           const opacity = selectedStage ? 
             (selectedStage === link.source || selectedStage === link.target ? 0.7 : 0.1) 
             : 0.5;
@@ -202,7 +203,7 @@ const FlowLines = ({ data, selectedStage }) => {
     return () => {
       map.removeLayer(flowGroup);
     };
-  }, [map, data, selectedStage]);
+  }, [map, data, selectedStage, selectedYear]);
 
   return null;
 };
@@ -286,7 +287,21 @@ const ZoomAwareTitle = ({ selectedStage, getSelectedLocationInfo }) => {
 
 const WorldMap = ({ commodity, selectedStage, onStageSelect }) => {
   const data = supplyChainData[commodity];
+  if (!data) {
+    console.error(`No data found for commodity: ${commodity}`);
+    return <Typography variant="body1">No data available for this commodity.</Typography>;
+  }
+
   const connectedStages = selectedStage ? findConnectedStages(data, selectedStage) : new Set();
+  
+  // New state for slider value and years
+  const years = data.years; // Extract years from the data
+  const [sliderValue, setSliderValue] = React.useState(years[0]); // Set initial value to the first year
+
+  // Function to handle slider change
+  const handleSliderChange = (event, newValue) => {
+    setSliderValue(newValue);
+  };
 
   // Updated to return company and site info
   const getSelectedLocationInfo = () => {
@@ -300,6 +315,12 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect }) => {
     return connectedStages.has(stage) ? 0.8 : 0.3;
   };
 
+  const getMarkerSize = (stage, year) => {
+    const yearData = data.dataByYear[year];
+    const stageData = yearData.locations[stage][0];
+    return Math.sqrt(stageData.value) / 2;
+  };
+
   return (
     <Box sx={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
       <Legend 
@@ -307,6 +328,21 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect }) => {
         selectedStage={selectedStage}
         data={data}
       />
+      
+      {/* Slider populated with years */}
+      <Box sx={{ padding: 2 }}>
+        <Typography gutterBottom>Select Year</Typography>
+        <Slider
+          value={sliderValue}
+          onChange={handleSliderChange}
+          aria-labelledby="year-slider"
+          min={years[0]} // Set minimum year
+          max={years[years.length - 1]} // Set maximum year
+          step={1} // Step by 1 year
+          marks={years.map(year => ({ value: year, label: year }))} // Create marks for each year
+        />
+      </Box>
+
       <Box sx={{ flex: 1, position: 'relative' }}>
         <MapContainer
           center={[20, 0]}
@@ -321,7 +357,8 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect }) => {
 
           <FlowLines 
             data={data} 
-            selectedStage={selectedStage} 
+            selectedStage={selectedStage}
+            selectedYear={sliderValue}
           />
           
           {selectedStage && (
@@ -336,7 +373,7 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect }) => {
               <CircleMarker
                 key={`${stage}-${i}`}
                 center={[location.coordinates[1], location.coordinates[0]]}
-                radius={Math.sqrt(location.value) / 2}
+                radius={getMarkerSize(stage, sliderValue)}
                 fillColor={STAGE_COLORS[stage]}
                 color="#FFFFFF"
                 weight={2}
