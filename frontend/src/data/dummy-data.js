@@ -11,23 +11,16 @@ export const supplyChainData = {
       { id: 'Manufacturing', name: 'Manufacturing', type: 'process' },
       { id: 'Distribution', name: 'Distribution', type: 'target' }
     ],
-    links: [
-      { source: 'Mining', target: 'Processing', value: 100 },
-      { source: 'Processing', target: 'Manufacturing', value: 80 },
-      { source: 'Manufacturing', target: 'Distribution', value: 60 }
-    ],
     locations: {
       Mining: [
         { 
-          country: 'AUS', 
-          value: 40, 
+          country: 'AUS',
           coordinates: [133.7751, -25.2744],
           company: 'Pilbara Minerals',
           site: 'Pilgangoora Operation'
         },
         { 
-          country: 'CHL', 
-          value: 2000, 
+          country: 'CHL',
           coordinates: [-71.5430, -35.6751],
           company: 'SQM',
           site: 'Salar de Atacama'
@@ -35,24 +28,27 @@ export const supplyChainData = {
       ],
       Processing: [
         { 
-          country: 'CHN', 
-          value: 80, 
+          country: 'CHN',
           coordinates: [104.1954, 35.8617],
           company: 'Ganfeng Lithium',
           site: 'Xinyu Processing Facility'
+        },
+        {
+          country: 'USA',
+          coordinates: [-95.7129, 37.0902],
+          company: 'Albemarle',
+          site: 'Silver Peak'
         }
       ],
       Manufacturing: [
         { 
-          country: 'USA', 
-          value: 30, 
+          country: 'USA',
           coordinates: [-95.7129, 37.0902],
           company: 'Tesla',
           site: 'Gigafactory Nevada'
         },
         { 
-          country: 'DEU', 
-          value: 30, 
+          country: 'DEU',
           coordinates: [10.4515, 51.1657],
           company: 'BASF',
           site: 'Schwarzheide Plant'
@@ -60,11 +56,16 @@ export const supplyChainData = {
       ],
       Distribution: [
         { 
-          country: 'Global', 
-          value: 60, 
-          coordinates: [0, 0],
-          company: 'Multiple Distributors',
-          site: 'Global Distribution Network'
+          country: 'USA',
+          coordinates: [-95.7129, 37.0902],
+          company: 'US Distribution',
+          site: 'National Network'
+        },
+        {
+          country: 'DEU',
+          coordinates: [10.4515, 51.1657],
+          company: 'EU Distribution',
+          site: 'European Network'
         }
       ]
     },
@@ -72,118 +73,53 @@ export const supplyChainData = {
     dataByYear: {
       2020: {
         links: [
-          { source: 'Mining', target: 'Processing', value: 100 },
-          { source: 'Processing', target: 'Manufacturing', value: 80 },
-          { source: 'Manufacturing', target: 'Distribution', value: 60 }
-        ],
-        locations: {
-          Mining: [
-            { country: 'AUS', value: 40 },
-            { country: 'CHL', value: 10000 }
-          ],
-          Processing: [
-            { country: 'CHN', value: 80 }
-          ],
-          Manufacturing: [
-            { country: 'USA', value: 30 },
-            { country: 'DEU', value: 30 }
-          ],
-          Distribution: [
-            { country: 'Global', value: 60 }
-          ]
-        }
+          { source: "Mining", sourceCountry: "AUS", target: "Processing", targetCountry: "CHN", value: 1500 },
+          { source: "Mining", sourceCountry: "CHL", target: "Processing", targetCountry: "CHN", value: 2000 },
+          { source: "Processing", sourceCountry: "CHN", target: "Manufacturing", targetCountry: "USA", value: 1800 },
+          { source: "Processing", sourceCountry: "CHN", target: "Manufacturing", targetCountry: "DEU", value: 1500 },
+          { source: "Manufacturing", sourceCountry: "USA", target: "Distribution", targetCountry: "USA", value: 1600 },
+          { source: "Manufacturing", sourceCountry: "DEU", target: "Distribution", targetCountry: "DEU", value: 1400 }
+        ]
       },
       2021: {
         links: [
-          { source: 'Mining', target: 'Processing', value: 90 },
-          { source: 'Processing', target: 'Manufacturing', value: 70 },
-          { source: 'Manufacturing', target: 'Distribution', value: 50 }
-        ],
-        locations: {
-          Mining: [
-            { country: 'AUS', value: 50 },
-            { country: 'CHL', value: 10 }
-          ],
-          Processing: [
-            { country: 'CHN', value: 90 }
-          ],
-          Manufacturing: [
-            { country: 'USA', value: 40 },
-            { country: 'DEU', value: 25 }
-          ],
-          Distribution: [
-            { country: 'Global', value: 70 }
-          ]
-        }
+          { source: "Mining", sourceCountry: "AUS", target: "Processing", targetCountry: "CHN", value: 1800 },
+          { source: "Mining", sourceCountry: "CHL", target: "Processing", targetCountry: "USA", value: 1200 },
+          { source: "Processing", sourceCountry: "CHN", target: "Manufacturing", targetCountry: "USA", value: 1600 },
+          { source: "Processing", sourceCountry: "USA", target: "Manufacturing", targetCountry: "DEU", value: 1000 },
+          { source: "Manufacturing", sourceCountry: "USA", target: "Distribution", targetCountry: "USA", value: 1400 },
+          { source: "Manufacturing", sourceCountry: "DEU", target: "Distribution", targetCountry: "DEU", value: 1200 }
+        ]
       },
       2022: {
         links: [
-          { source: 'Mining', target: 'Processing', value: 95 },
-          { source: 'Processing', target: 'Manufacturing', value: 75 },
-          { source: 'Manufacturing', target: 'Distribution', value: 55 }
-        ],
-        locations: {
-          Mining: [
-            { country: 'AUS', value: 60 },
-            { country: 'CHL', value: 1900 }
-          ],
-          Processing: [
-            { country: 'CHN', value: 85 }
-          ],
-          Manufacturing: [
-            { country: 'USA', value: 35 },
-            { country: 'DEU', value: 30 }
-          ],
-          Distribution: [
-            { country: 'Global', value: 80 }
-          ]
-        }
+          { source: "Mining", sourceCountry: "AUS", target: "Processing", targetCountry: "USA", value: 2000 },
+          { source: "Mining", sourceCountry: "CHL", target: "Processing", targetCountry: "CHN", value: 1800 },
+          { source: "Processing", sourceCountry: "USA", target: "Manufacturing", targetCountry: "USA", value: 1900 },
+          { source: "Processing", sourceCountry: "CHN", target: "Manufacturing", targetCountry: "DEU", value: 1700 },
+          { source: "Manufacturing", sourceCountry: "USA", target: "Distribution", targetCountry: "USA", value: 1800 },
+          { source: "Manufacturing", sourceCountry: "DEU", target: "Distribution", targetCountry: "DEU", value: 1600 }
+        ]
       },
       2023: {
         links: [
-          { source: 'Mining', target: 'Processing', value: 85 },
-          { source: 'Processing', target: 'Manufacturing', value: 65 },
-          { source: 'Manufacturing', target: 'Distribution', value: 50 }
-        ],
-        locations: {
-          Mining: [
-            { country: 'AUS', value: 70 },
-            { country: 'CHL', value: 2000 }
-          ],
-          Processing: [
-            { country: 'CHN', value: 80 }
-          ],
-          Manufacturing: [
-            { country: 'USA', value: 45 },
-            { country: 'DEU', value: 35 }
-          ],
-          Distribution: [
-            { country: 'Global', value: 90 }
-          ]
-        }
+          { source: "Mining", sourceCountry: "AUS", target: "Processing", targetCountry: "USA", value: 2200 },
+          { source: "Mining", sourceCountry: "CHL", target: "Processing", targetCountry: "USA", value: 2000 },
+          { source: "Processing", sourceCountry: "USA", target: "Manufacturing", targetCountry: "USA", value: 2100 },
+          { source: "Processing", sourceCountry: "USA", target: "Manufacturing", targetCountry: "DEU", value: 1900 },
+          { source: "Manufacturing", sourceCountry: "USA", target: "Distribution", targetCountry: "USA", value: 2000 },
+          { source: "Manufacturing", sourceCountry: "DEU", target: "Distribution", targetCountry: "DEU", value: 1800 }
+        ]
       },
       2024: {
         links: [
-          { source: 'Mining', target: 'Processing', value: 80 },
-          { source: 'Processing', target: 'Manufacturing', value: 60 },
-          { source: 'Manufacturing', target: 'Distribution', value: 40 }
-        ],
-        locations: {
-          Mining: [
-            { country: 'AUS', value: 75 },
-            { country: 'CHL', value: 2100 }
-          ],
-          Processing: [
-            { country: 'CHN', value: 75 }
-          ],
-          Manufacturing: [
-            { country: 'USA', value: 50 },
-            { country: 'DEU', value: 40 }
-          ],
-          Distribution: [
-            { country: 'Global', value: 100 }
-          ]
-        }
+          { source: "Mining", sourceCountry: "AUS", target: "Processing", targetCountry: "USA", value: 2500 },
+          { source: "Mining", sourceCountry: "CHL", target: "Processing", targetCountry: "USA", value: 2300 },
+          { source: "Processing", sourceCountry: "USA", target: "Manufacturing", targetCountry: "USA", value: 2400 },
+          { source: "Processing", sourceCountry: "USA", target: "Manufacturing", targetCountry: "DEU", value: 2200 },
+          { source: "Manufacturing", sourceCountry: "USA", target: "Distribution", targetCountry: "USA", value: 2300 },
+          { source: "Manufacturing", sourceCountry: "DEU", target: "Distribution", targetCountry: "DEU", value: 2100 }
+        ]
       }
     }
   },
@@ -194,46 +130,61 @@ export const supplyChainData = {
       { id: 'Manufacturing', name: 'Manufacturing', type: 'process' },
       { id: 'Distribution', name: 'Distribution', type: 'target' }
     ],
-    links: [
-      { source: 'Mining', target: 'Processing', value: 100 },
-      { source: 'Processing', target: 'Manufacturing', value: 80 },
-      { source: 'Manufacturing', target: 'Distribution', value: 50 }
-    ],
     locations: {
       Mining: [
         { 
-          country: 'COD', 
-          value: 2000, 
+          country: 'COD',
           coordinates: [21.7587, -4.0383],
           company: 'Glencore',
           site: 'Mutanda Mining'
+        },
+        {
+          country: 'ZMB',
+          coordinates: [27.8493, -13.1339],
+          company: 'ZCCM',
+          site: 'Chambishi Mine'
         }
       ],
       Processing: [
         { 
-          country: 'CHN', 
-          value: 60, 
+          country: 'CHN',
           coordinates: [104.1954, 35.8617],
           company: 'Huayou Cobalt',
           site: 'Tongxiang Facility'
+        },
+        {
+          country: 'FIN',
+          coordinates: [25.7482, 61.9241],
+          company: 'Umicore',
+          site: 'Kokkola Plant'
         }
       ],
       Manufacturing: [
         { 
-          country: 'JPN', 
-          value: 40, 
+          country: 'JPN',
           coordinates: [138.2529, 36.2048],
           company: 'Panasonic',
           site: 'Kasai Plant'
+        },
+        {
+          country: 'KOR',
+          coordinates: [127.7669, 35.9078],
+          company: 'Samsung SDI',
+          site: 'Ulsan Plant'
         }
       ],
       Distribution: [
         { 
-          country: 'Global', 
-          value: 50, 
-          coordinates: [0, 0],
-          company: 'Multiple Distributors',
-          site: 'Global Distribution Network'
+          country: 'JPN',
+          coordinates: [138.2529, 36.2048],
+          company: 'Asian Distribution',
+          site: 'Regional Network'
+        },
+        {
+          country: 'DEU',
+          coordinates: [10.4515, 51.1657],
+          company: 'EU Distribution',
+          site: 'European Network'
         }
       ]
     },
@@ -241,108 +192,53 @@ export const supplyChainData = {
     dataByYear: {
       2020: {
         links: [
-          { source: 'Mining', target: 'Processing', value: 100 },
-          { source: 'Processing', target: 'Manufacturing', value: 80 },
-          { source: 'Manufacturing', target: 'Distribution', value: 50 }
-        ],
-        locations: {
-          Mining: [
-            { country: 'COD', value: 3000 }
-          ],
-          Processing: [
-            { country: 'CHN', value: 60 }
-          ],
-          Manufacturing: [
-            { country: 'JPN', value: 40 }
-          ],
-          Distribution: [
-            { country: 'Global', value: 50 }
-          ]
-        }
+          { source: "Mining", sourceCountry: "COD", target: "Processing", targetCountry: "CHN", value: 1600 },
+          { source: "Mining", sourceCountry: "ZMB", target: "Processing", targetCountry: "CHN", value: 1400 },
+          { source: "Processing", sourceCountry: "CHN", target: "Manufacturing", targetCountry: "JPN", value: 1500 },
+          { source: "Processing", sourceCountry: "CHN", target: "Manufacturing", targetCountry: "KOR", value: 1300 },
+          { source: "Manufacturing", sourceCountry: "JPN", target: "Distribution", targetCountry: "JPN", value: 1400 },
+          { source: "Manufacturing", sourceCountry: "KOR", target: "Distribution", targetCountry: "DEU", value: 1200 }
+        ]
       },
       2021: {
         links: [
-          { source: 'Mining', target: 'Processing', value: 90 },
-          { source: 'Processing', target: 'Manufacturing', value: 70 },
-          { source: 'Manufacturing', target: 'Distribution', value: 40 }
-        ],
-        locations: {
-          Mining: [
-            { country: 'COD', value: 80 }
-          ],
-          Processing: [
-            { country: 'CHN', value: 70 }
-          ],
-          Manufacturing: [
-            { country: 'JPN', value: 50 }
-          ],
-          Distribution: [
-            { country: 'Global', value: 60 }
-          ]
-        }
+          { source: "Mining", sourceCountry: "COD", target: "Processing", targetCountry: "FIN", value: 1800 },
+          { source: "Mining", sourceCountry: "ZMB", target: "Processing", targetCountry: "CHN", value: 1500 },
+          { source: "Processing", sourceCountry: "FIN", target: "Manufacturing", targetCountry: "JPN", value: 1700 },
+          { source: "Processing", sourceCountry: "CHN", target: "Manufacturing", targetCountry: "KOR", value: 1400 },
+          { source: "Manufacturing", sourceCountry: "JPN", target: "Distribution", targetCountry: "JPN", value: 1600 },
+          { source: "Manufacturing", sourceCountry: "KOR", target: "Distribution", targetCountry: "DEU", value: 1300 }
+        ]
       },
       2022: {
         links: [
-          { source: 'Mining', target: 'Processing', value: 85 },
-          { source: 'Processing', target: 'Manufacturing', value: 65 },
-          { source: 'Manufacturing', target: 'Distribution', value: 45 }
-        ],
-        locations: {
-          Mining: [
-            { country: 'COD', value: 90 }
-          ],
-          Processing: [
-            { country: 'CHN', value: 75 }
-          ],
-          Manufacturing: [
-            { country: 'JPN', value: 60 }
-          ],
-          Distribution: [
-            { country: 'Global', value: 70 }
-          ]
-        }
+          { source: "Mining", sourceCountry: "COD", target: "Processing", targetCountry: "FIN", value: 2000 },
+          { source: "Mining", sourceCountry: "ZMB", target: "Processing", targetCountry: "FIN", value: 1700 },
+          { source: "Processing", sourceCountry: "FIN", target: "Manufacturing", targetCountry: "KOR", value: 1900 },
+          { source: "Processing", sourceCountry: "FIN", target: "Manufacturing", targetCountry: "JPN", value: 1600 },
+          { source: "Manufacturing", sourceCountry: "KOR", target: "Distribution", targetCountry: "DEU", value: 1800 },
+          { source: "Manufacturing", sourceCountry: "JPN", target: "Distribution", targetCountry: "JPN", value: 1500 }
+        ]
       },
       2023: {
         links: [
-          { source: 'Mining', target: 'Processing', value: 80 },
-          { source: 'Processing', target: 'Manufacturing', value: 60 },
-          { source: 'Manufacturing', target: 'Distribution', value: 50 }
-        ],
-        locations: {
-          Mining: [
-            { country: 'COD', value: 100 }
-          ],
-          Processing: [
-            { country: 'CHN', value: 80 }
-          ],
-          Manufacturing: [
-            { country: 'JPN', value: 70 }
-          ],
-          Distribution: [
-            { country: 'Global', value: 80 }
-          ]
-        }
+          { source: "Mining", sourceCountry: "COD", target: "Processing", targetCountry: "FIN", value: 2200 },
+          { source: "Mining", sourceCountry: "ZMB", target: "Processing", targetCountry: "FIN", value: 1900 },
+          { source: "Processing", sourceCountry: "FIN", target: "Manufacturing", targetCountry: "KOR", value: 2100 },
+          { source: "Processing", sourceCountry: "FIN", target: "Manufacturing", targetCountry: "JPN", value: 1800 },
+          { source: "Manufacturing", sourceCountry: "KOR", target: "Distribution", targetCountry: "DEU", value: 2000 },
+          { source: "Manufacturing", sourceCountry: "JPN", target: "Distribution", targetCountry: "JPN", value: 1700 }
+        ]
       },
       2024: {
         links: [
-          { source: 'Mining', target: 'Processing', value: 75 },
-          { source: 'Processing', target: 'Manufacturing', value: 55 },
-          { source: 'Manufacturing', target: 'Distribution', value: 45 }
-        ],
-        locations: {
-          Mining: [
-            { country: 'COD', value: 110 }
-          ],
-          Processing: [
-            { country: 'CHN', value: 85 }
-          ],
-          Manufacturing: [
-            { country: 'JPN', value: 75 }
-          ],
-          Distribution: [
-            { country: 'Global', value: 90 }
-          ]
-        }
+          { source: "Mining", sourceCountry: "COD", target: "Processing", targetCountry: "FIN", value: 2400 },
+          { source: "Mining", sourceCountry: "ZMB", target: "Processing", targetCountry: "FIN", value: 2100 },
+          { source: "Processing", sourceCountry: "FIN", target: "Manufacturing", targetCountry: "KOR", value: 2300 },
+          { source: "Processing", sourceCountry: "FIN", target: "Manufacturing", targetCountry: "JPN", value: 2000 },
+          { source: "Manufacturing", sourceCountry: "KOR", target: "Distribution", targetCountry: "DEU", value: 2200 },
+          { source: "Manufacturing", sourceCountry: "JPN", target: "Distribution", targetCountry: "JPN", value: 1900 }
+        ]
       }
     }
   },
@@ -353,46 +249,61 @@ export const supplyChainData = {
       { id: 'Manufacturing', name: 'Manufacturing', type: 'process' },
       { id: 'Distribution', name: 'Distribution', type: 'target' }
     ],
-    links: [
-      { source: 'Mining', target: 'Processing', value: 100 },
-      { source: 'Processing', target: 'Manufacturing', value: 85 },
-      { source: 'Manufacturing', target: 'Distribution', value: 45 }
-    ],
     locations: {
       Mining: [
         { 
-          country: 'IDN', 
-          value: 55, 
+          country: 'IDN',
           coordinates: [113.9213, -0.7893],
           company: 'Vale Indonesia',
           site: 'Sorowako Mine'
+        },
+        {
+          country: 'PHL',
+          coordinates: [121.7740, 12.8797],
+          company: 'Nickel Asia',
+          site: 'Taganito Mine'
         }
       ],
       Processing: [
         { 
-          country: 'CHN', 
-          value: 75, 
+          country: 'CHN',
           coordinates: [104.1954, 35.8617],
           company: 'Tsingshan',
           site: 'Morowali Industrial Park'
+        },
+        {
+          country: 'JPN',
+          coordinates: [138.2529, 36.2048],
+          company: 'Sumitomo Metal',
+          site: 'Niihama Refinery'
         }
       ],
       Manufacturing: [
         { 
-          country: 'KOR', 
-          value: 45, 
+          country: 'KOR',
           coordinates: [127.7669, 35.9078],
           company: 'LG Chem',
           site: 'Ochang Plant'
+        },
+        {
+          country: 'CHN',
+          coordinates: [104.1954, 35.8617],
+          company: 'CATL',
+          site: 'Ningde Factory'
         }
       ],
       Distribution: [
         { 
-          country: 'Global', 
-          value: 45, 
-          coordinates: [0, 0],
-          company: 'Multiple Distributors',
-          site: 'Global Distribution Network'
+          country: 'KOR',
+          coordinates: [127.7669, 35.9078],
+          company: 'Asian Distribution',
+          site: 'Regional Network'
+        },
+        {
+          country: 'USA',
+          coordinates: [-95.7129, 37.0902],
+          company: 'US Distribution',
+          site: 'National Network'
         }
       ]
     },
@@ -400,108 +311,53 @@ export const supplyChainData = {
     dataByYear: {
       2020: {
         links: [
-          { source: 'Mining', target: 'Processing', value: 100 },
-          { source: 'Processing', target: 'Manufacturing', value: 85 },
-          { source: 'Manufacturing', target: 'Distribution', value: 45 }
-        ],
-        locations: {
-          Mining: [
-            { country: 'IDN', value: 55 }
-          ],
-          Processing: [
-            { country: 'CHN', value: 75 }
-          ],
-          Manufacturing: [
-            { country: 'KOR', value: 45 }
-          ],
-          Distribution: [
-            { country: 'Global', value: 45 }
-          ]
-        }
+          { source: "Mining", sourceCountry: "IDN", target: "Processing", targetCountry: "CHN", value: 1700 },
+          { source: "Mining", sourceCountry: "PHL", target: "Processing", targetCountry: "JPN", value: 1500 },
+          { source: "Processing", sourceCountry: "CHN", target: "Manufacturing", targetCountry: "CHN", value: 1600 },
+          { source: "Processing", sourceCountry: "JPN", target: "Manufacturing", targetCountry: "KOR", value: 1400 },
+          { source: "Manufacturing", sourceCountry: "CHN", target: "Distribution", targetCountry: "USA", value: 1500 },
+          { source: "Manufacturing", sourceCountry: "KOR", target: "Distribution", targetCountry: "KOR", value: 1300 }
+        ]
       },
       2021: {
         links: [
-          { source: 'Mining', target: 'Processing', value: 90 },
-          { source: 'Processing', target: 'Manufacturing', value: 80 },
-          { source: 'Manufacturing', target: 'Distribution', value: 40 }
-        ],
-        locations: {
-          Mining: [
-            { country: 'IDN', value: 60 }
-          ],
-          Processing: [
-            { country: 'CHN', value: 80 }
-          ],
-          Manufacturing: [
-            { country: 'KOR', value: 50 }
-          ],
-          Distribution: [
-            { country: 'Global', value: 50 }
-          ]
-        }
+          { source: "Mining", sourceCountry: "IDN", target: "Processing", targetCountry: "CHN", value: 1900 },
+          { source: "Mining", sourceCountry: "PHL", target: "Processing", targetCountry: "JPN", value: 1600 },
+          { source: "Processing", sourceCountry: "CHN", target: "Manufacturing", targetCountry: "CHN", value: 1800 },
+          { source: "Processing", sourceCountry: "JPN", target: "Manufacturing", targetCountry: "KOR", value: 1500 },
+          { source: "Manufacturing", sourceCountry: "CHN", target: "Distribution", targetCountry: "USA", value: 1700 },
+          { source: "Manufacturing", sourceCountry: "KOR", target: "Distribution", targetCountry: "KOR", value: 1400 }
+        ]
       },
       2022: {
         links: [
-          { source: 'Mining', target: 'Processing', value: 85 },
-          { source: 'Processing', target: 'Manufacturing', value: 75 },
-          { source: 'Manufacturing', target: 'Distribution', value: 35 }
-        ],
-        locations: {
-          Mining: [
-            { country: 'IDN', value: 65 }
-          ],
-          Processing: [
-            { country: 'CHN', value: 85 }
-          ],
-          Manufacturing: [
-            { country: 'KOR', value: 55 }
-          ],
-          Distribution: [
-            { country: 'Global', value: 55 }
-          ]
-        }
+          { source: "Mining", sourceCountry: "IDN", target: "Processing", targetCountry: "JPN", value: 2100 },
+          { source: "Mining", sourceCountry: "PHL", target: "Processing", targetCountry: "JPN", value: 1800 },
+          { source: "Processing", sourceCountry: "JPN", target: "Manufacturing", targetCountry: "KOR", value: 2000 },
+          { source: "Processing", sourceCountry: "JPN", target: "Manufacturing", targetCountry: "CHN", value: 1700 },
+          { source: "Manufacturing", sourceCountry: "KOR", target: "Distribution", targetCountry: "KOR", value: 1900 },
+          { source: "Manufacturing", sourceCountry: "CHN", target: "Distribution", targetCountry: "USA", value: 1600 }
+        ]
       },
       2023: {
         links: [
-          { source: 'Mining', target: 'Processing', value: 3000 },
-          { source: 'Processing', target: 'Manufacturing', value: 70 },
-          { source: 'Manufacturing', target: 'Distribution', value: 30 }
-        ],
-        locations: {
-          Mining: [
-            { country: 'IDN', value: 3000 }
-          ],
-          Processing: [
-            { country: 'CHN', value: 90 }
-          ],
-          Manufacturing: [
-            { country: 'KOR', value: 60 }
-          ],
-          Distribution: [
-            { country: 'Global', value: 60 }
-          ]
-        }
+          { source: "Mining", sourceCountry: "IDN", target: "Processing", targetCountry: "JPN", value: 2300 },
+          { source: "Mining", sourceCountry: "PHL", target: "Processing", targetCountry: "JPN", value: 2000 },
+          { source: "Processing", sourceCountry: "JPN", target: "Manufacturing", targetCountry: "KOR", value: 2200 },
+          { source: "Processing", sourceCountry: "JPN", target: "Manufacturing", targetCountry: "CHN", value: 1900 },
+          { source: "Manufacturing", sourceCountry: "KOR", target: "Distribution", targetCountry: "KOR", value: 2100 },
+          { source: "Manufacturing", sourceCountry: "CHN", target: "Distribution", targetCountry: "USA", value: 1800 }
+        ]
       },
       2024: {
         links: [
-          { source: 'Mining', target: 'Processing', value: 75 },
-          { source: 'Processing', target: 'Manufacturing', value: 65 },
-          { source: 'Manufacturing', target: 'Distribution', value: 30 }
-        ],
-        locations: {
-          Mining: [
-            { country: 'IDN', value: 75 }
-          ],
-          Processing: [
-            { country: 'CHN', value: 95 }
-          ],
-          Manufacturing: [
-            { country: 'KOR', value: 65 }
-          ],
-          Distribution: [
-            { country: 'Global', value: 65 }
-          ]
-        }
+          { source: "Mining", sourceCountry: "IDN", target: "Processing", targetCountry: "JPN", value: 2500 },
+          { source: "Mining", sourceCountry: "PHL", target: "Processing", targetCountry: "JPN", value: 2200 },
+          { source: "Processing", sourceCountry: "JPN", target: "Manufacturing", targetCountry: "KOR", value: 2400 },
+          { source: "Processing", sourceCountry: "JPN", target: "Manufacturing", targetCountry: "CHN", value: 2100 },
+          { source: "Manufacturing", sourceCountry: "KOR", target: "Distribution", targetCountry: "KOR", value: 2300 },
+          { source: "Manufacturing", sourceCountry: "CHN", target: "Distribution", targetCountry: "USA", value: 2000 }
+        ]
       }
     }
   }

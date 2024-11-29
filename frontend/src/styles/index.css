@@ -93,3 +93,18 @@ body {
   stroke-dasharray: 12 12;
   animation: flowAnimation 1s linear infinite;
 }
+
+* {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Update map styles for dark mode */
+.leaflet-container {
+  transition: background-color 0.3s ease !important;
+}
+
+/* Update tooltip styles */
+.custom-tooltip {
+  background: var(--mui-palette-background-paper) !important;
+  color: var(--mui-palette-text-primary) !important;
+}

@@ -84,34 +84,31 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
 
   // Transform custom chain data to match the exact format expected by WorldMap
   const getCustomMapData = () => {
-    const customData = {
-      locations: {},
-      links: []  // Note: using 'links' instead of 'flows' to match existing format
+    return {
+      nodes: SUPPLY_CHAIN_STEPS.map(id => ({ id, name: id, type: id === 'Mining' ? 'source' : id === 'Distribution' ? 'target' : 'process' })),
+      locations: customChain, // Already in the correct format by step
+      dataByYear: {
+        2024: {  // Use current year as default
+          links: connections.map(conn => {
+            const [sourceStep, sourceIndex] = conn.start.split('-');
+            const [targetStep, targetIndex] = conn.end.split('-');
+            const sourceLocation = customChain[sourceStep][parseInt(sourceIndex)];
+            const targetLocation = customChain[targetStep][parseInt(targetIndex)];
+            
+            return {
+              source: sourceStep,
+              sourceCountry: sourceLocation.country,
+              target: targetStep,
+              targetCountry: targetLocation.country,
+              value: 100 // Default value for visualization
+            };
+          })
+        }
+      },
+      years: [2024]  // Single year for custom view
     };
-
-    // Add only the selected companies for each stage
-    SUPPLY_CHAIN_STEPS.forEach(stage => {
-      if (customChain[stage] && customChain[stage].length > 0) {
-        customData.locations[stage] = customChain[stage];
-      } else {
-        customData.locations[stage] = [];
-      }
-    });
-
-    // Add only the drawn connections
-    connections.forEach(conn => {
-      const [sourceStep] = conn.start.split('-');
-      const [targetStep] = conn.end.split('-');
-      
-      customData.links.push({
-        source: sourceStep,
-        target: targetStep
-      });
-    });
-
-    return customData;
   };
-
+  
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       {/* Builder Section */}
@@ -282,8 +279,6 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
           ))}
         </Xwrapper>
       </Box>
-
-      {/* Visualization Section */}
       {showVisualization && (
         <Box sx={{ mt: 4, border: 1, borderColor: 'divider', borderRadius: 1, p: 2 }}>
           <Typography variant="h6" gutterBottom>

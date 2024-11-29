@@ -1,33 +1,24 @@
 // src/App.jsx
-import React, { useState } from 'react';
-import { ThemeProvider, CssBaseline } from '@mui/material';
+import React, { useState, useMemo } from 'react';
+import { ThemeProvider, CssBaseline, IconButton } from '@mui/material';
 import { Tabs, Tab, Box, Container } from '@mui/material';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 import Dashboard from './components/Dashboard/Dashboard';
 import DragDropBuilder from './components/DragDrop/DragDropBuilder';
 import { createTheme } from '@mui/material/styles';
 import './styles/index.css';
 
-const theme = createTheme({
-  palette: {
-    mode: 'light',
-    primary: {
-      main: '#007AFF', // Apple-style blue
-    },
-    background: {
-      default: '#F5F5F7', // Apple-style light gray
-      paper: '#FFFFFF',
-    }
-  },
-  typography: {
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-  },
-});
-
 const App = () => {
+  // Theme state with localStorage persistence
+  const [mode, setMode] = useState(() => {
+    const savedMode = localStorage.getItem('theme-mode');
+    return savedMode || 'light';
+  });
+
   const [selectedTab, setSelectedTab] = useState(0);
   const [selectedCommodity, setSelectedCommodity] = useState('Lithium');
   
-  // Keep the state here instead of in individual components
   const [customChain, setCustomChain] = useState({
     Mining: [],
     Processing: [],
@@ -35,6 +26,45 @@ const App = () => {
     Distribution: []
   });
   const [connections, setConnections] = useState([]);
+
+  // Theme configuration
+  const theme = useMemo(() => createTheme({
+    palette: {
+      mode,
+      ...(mode === 'light' 
+        ? {
+            primary: {
+              main: '#007AFF',
+            },
+            background: {
+              default: '#F5F5F7',
+              paper: '#FFFFFF',
+            }
+          }
+        : {
+            primary: {
+              main: '#0A84FF',
+            },
+            background: {
+              default: '#1C1C1E',
+              paper: '#2C2C2E',
+            },
+            text: {
+              primary: '#FFFFFF',
+              secondary: 'rgba(255, 255, 255, 0.7)',
+            }
+          })
+    },
+    typography: {
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    },
+  }), [mode]);
+
+  const toggleMode = () => {
+    const newMode = mode === 'light' ? 'dark' : 'light';
+    setMode(newMode);
+    localStorage.setItem('theme-mode', newMode);
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -51,8 +81,19 @@ const App = () => {
             bgcolor: 'background.paper', 
             borderRadius: 3,
             p: 2,
-            mb: 3
+            mb: 3,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
           }}>
+            <IconButton 
+              onClick={toggleMode}
+              color="inherit"
+              sx={{ mr: 2 }}
+            >
+              {mode === 'light' ? <Brightness4Icon /> : <Brightness7Icon />}
+            </IconButton>
+            
             <Tabs 
               value={selectedTab} 
               onChange={(e, newValue) => setSelectedTab(newValue)} 
@@ -61,6 +102,8 @@ const App = () => {
               <Tab label="Supply Chain Dashboard" />
               <Tab label="Supply Chain Builder" />
             </Tabs>
+            
+            <Box sx={{ width: 48 }} /> {/* Spacer for symmetry */}
           </Box>
 
           <Box sx={{ flex: 1 }}>

@@ -12,7 +12,11 @@ const LocationNode = ({ location, stage, isSelected, clickable }) => {
         borderColor: 'primary.main',
         '&:hover': {
           bgcolor: clickable ? 'action.hover' : 'background.paper',
-          transform: clickable ? 'scale(1.02)' : 'none'
+          transform: clickable ? 'scale(1.02)' : 'none',
+          cursor: clickable ? 'grab' : 'default'
+        },
+        '&:active': {
+          cursor: clickable ? 'grabbing' : 'default'
         },
         transition: 'all 0.2s ease'
       }}
