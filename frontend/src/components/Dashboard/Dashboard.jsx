@@ -93,7 +93,8 @@ const Dashboard = ({ selectedCommodity, onCommodityChange }) => {
       <Paper 
         elevation={0} 
         sx={{ 
-          height: isMobile ? '500px' : '700px',
+          height: isMobile ? '600px' : '1000px',
+          width: '100%',
           borderRadius: 2,
           border: '1px solid',
           borderColor: 'divider',
@@ -106,6 +107,7 @@ const Dashboard = ({ selectedCommodity, onCommodityChange }) => {
             selectedStage={selectedStage}
             onStageSelect={handleStageSelect}
             flowMetric={flowMetric}
+            sx={{ width: '100%', height: '100%', position: 'relative' }}
           />
         ) : (
           <SankeyDiagram

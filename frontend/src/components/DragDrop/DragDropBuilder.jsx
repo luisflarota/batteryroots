@@ -463,7 +463,7 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
           <Typography variant="h6" gutterBottom>
             Custom Supply Chain
           </Typography>
-          <Box sx={{ height: '500px' }}>
+          <Box sx={{ height: '80vh' }}>
             <WorldMap
               commodity={selectedCommodity}
               customData={getCustomMapData()}
