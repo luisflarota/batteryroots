@@ -17,6 +17,7 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
   const [showVisualization, setShowVisualization] = useState(false);
   const [searchInputs, setSearchInputs] = useState({});
   const [autocompleteValue, setAutocompleteValue] = useState({});
+  const [selectedForConnection, setSelectedForConnection] = useState(null);
   const theme = useTheme();
 
   // Get current commodity's data
@@ -44,8 +45,8 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
           ...currentChain,
           [step]: [...currentChain[step], location]
         };
-
-        // Create new connections
+  
+        // Create new connections (automatic step-by-step connections)
         const newConnections = [];
         const currentStepIndex = SUPPLY_CHAIN_STEPS.indexOf(step);
         
@@ -61,12 +62,12 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
             });
           });
         }
-
+  
         if (currentStepIndex < SUPPLY_CHAIN_STEPS.length - 1) {
           const nextStep = SUPPLY_CHAIN_STEPS[currentStepIndex + 1];
           const nextCompanies = currentChain[nextStep];
           const currentCompanyIndex = updatedChain[step].length - 1;
-
+  
           nextCompanies.forEach((_, nextIndex) => {
             newConnections.push({
               start: `${step}-${currentCompanyIndex}`,
@@ -74,24 +75,46 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
             });
           });
         }
-
+  
         // Update connections
         setConnectionsMap(prev => ({
           ...prev,
           [selectedCommodity]: [...(prev[selectedCommodity] || []), ...newConnections]
         }));
-
+  
         return {
           ...prev,
           [selectedCommodity]: updatedChain
         };
       });
-
-      // Update used companies for this commodity
+  
+      // Update used companies
       setUsedCompaniesMap(prev => ({
         ...prev,
         [selectedCommodity]: new Set([...(prev[selectedCommodity] || []), `${location.company}-${location.site}`])
       }));
+    }
+  };
+
+  const handleChainNodeClick = (nodeId, step) => {
+    if (!selectedForConnection) {
+      setSelectedForConnection({ id: nodeId, step });
+    } else {
+      const startStepIndex = SUPPLY_CHAIN_STEPS.indexOf(selectedForConnection.step);
+      const endStepIndex = SUPPLY_CHAIN_STEPS.indexOf(step);
+      
+      // Only allow connections to next step or within same step
+      if (endStepIndex >= startStepIndex) {
+        setConnectionsMap(prev => ({
+          ...prev,
+          [selectedCommodity]: [...(prev[selectedCommodity] || []), {
+            start: selectedForConnection.id,
+            end: nodeId
+          }]
+        }));
+      }
+      
+      setSelectedForConnection(null);
     }
   };
 
@@ -142,6 +165,11 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
         [selectedCommodity]: updatedConnections
       };
     });
+
+    // Clear selection if removed company was selected for connection
+    if (selectedForConnection?.id.startsWith(`${step}-${index}`)) {
+      setSelectedForConnection(null);
+    }
   };
 
   const handleRemoveConnection = (index) => {
@@ -220,6 +248,7 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
               onChange={(e) => {
                 onCommodityChange(e.target.value);
                 setShowVisualization(false);
+                setSelectedForConnection(null);
               }}
               sx={{
                 fontFamily: 'SF Mono, Menlo, monospace',
@@ -336,7 +365,7 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
                     sx={{
                       minHeight: 150,
                       border: '2px dashed',
-                      borderColor: 'divider',
+                      borderColor: selectedForConnection?.step === step ? 'primary.main' : 'divider',
                       borderRadius: 1,
                       p: 1,
                       display: 'flex',
@@ -347,29 +376,35 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
                   >
                     {customChain[step].map((location, index) => {
                       const nodeId = `${step}-${index}`;
+                      const isSelected = selectedForConnection?.id === nodeId;
+                      
                       return (
                         <Box
                           key={nodeId}
                           id={nodeId}
+                          onClick={() => handleChainNodeClick(nodeId, step)}
                           sx={{ 
                             position: 'relative',
-                            bgcolor: theme.palette.background.default
+                            bgcolor: theme.palette.background.default,
+                            border: isSelected ? '2px solid' : 'none',
+                            borderColor: 'primary.main',
+                            borderRadius: 1,
+                            cursor: 'pointer',
+                            '&:hover': {
+                              bgcolor: isSelected ? undefined : 'action.hover'
+                            }
                           }}
                         >
-                          <Box
-                            sx={{ 
-                              borderRadius: 1,
-                              bgcolor: theme.palette.background.default
-                            }}
-                          >
-                            <LocationNode 
-                              location={location} 
-                              stage={step}
-                            />
-                          </Box>
+                          <LocationNode 
+                            location={location} 
+                            stage={step}
+                          />
                           <IconButton
                             size="small"
-                            onClick={() => handleRemoveCompany(step, index)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveCompany(step, index);
+                            }}
                             sx={{ 
                               position: 'absolute',
                               top: -8,
