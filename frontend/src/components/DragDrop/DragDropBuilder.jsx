@@ -11,35 +11,47 @@ import { useTheme } from '@mui/material/styles';
 const SUPPLY_CHAIN_STEPS = ['Mining', 'Processing', 'Manufacturing', 'Distribution'];
 
 const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
-  const [customChain, setCustomChain] = useState({
-    Mining: [],
-    Processing: [],
-    Manufacturing: [],
-    Distribution: []
-  });
-  const [connections, setConnections] = useState([]);
+  const [customChains, setCustomChains] = useState({});
+  const [connectionsMap, setConnectionsMap] = useState({});
+  const [usedCompaniesMap, setUsedCompaniesMap] = useState({});
   const [showVisualization, setShowVisualization] = useState(false);
-  const [usedCompanies, setUsedCompanies] = useState(new Set());
   const [searchInputs, setSearchInputs] = useState({});
   const [autocompleteValue, setAutocompleteValue] = useState({});
   const theme = useTheme();
 
+  // Get current commodity's data
+  const customChain = customChains[selectedCommodity] || {
+    Mining: [],
+    Processing: [],
+    Manufacturing: [],
+    Distribution: []
+  };
+  const connections = connectionsMap[selectedCommodity] || [];
+  const usedCompanies = usedCompaniesMap[selectedCommodity] || new Set();
+
   const handleCompanyClick = (location, step) => {
     if (!usedCompanies.has(`${location.company}-${location.site}`)) {
-      setCustomChain(prev => {
-        const updatedChain = {
-          ...prev,
-          [step]: [...prev[step], location]
+      // Update chain
+      setCustomChains(prev => {
+        const currentChain = prev[selectedCommodity] || {
+          Mining: [],
+          Processing: [],
+          Manufacturing: [],
+          Distribution: []
         };
         
+        const updatedChain = {
+          ...currentChain,
+          [step]: [...currentChain[step], location]
+        };
+
         // Create new connections
         const newConnections = [];
         const currentStepIndex = SUPPLY_CHAIN_STEPS.indexOf(step);
         
-        // If there's a previous step, connect to all companies in previous step
         if (currentStepIndex > 0) {
           const previousStep = SUPPLY_CHAIN_STEPS[currentStepIndex - 1];
-          const previousCompanies = prev[previousStep];
+          const previousCompanies = currentChain[previousStep];
           const currentCompanyIndex = updatedChain[step].length - 1;
           
           previousCompanies.forEach((_, prevIndex) => {
@@ -50,10 +62,9 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
           });
         }
 
-        // If there's a next step, connect to all companies in next step
         if (currentStepIndex < SUPPLY_CHAIN_STEPS.length - 1) {
           const nextStep = SUPPLY_CHAIN_STEPS[currentStepIndex + 1];
-          const nextCompanies = prev[nextStep];
+          const nextCompanies = currentChain[nextStep];
           const currentCompanyIndex = updatedChain[step].length - 1;
 
           nextCompanies.forEach((_, nextIndex) => {
@@ -64,33 +75,52 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
           });
         }
 
-        // Add the new connections
-        setConnections(prev => [...prev, ...newConnections]);
+        // Update connections
+        setConnectionsMap(prev => ({
+          ...prev,
+          [selectedCommodity]: [...(prev[selectedCommodity] || []), ...newConnections]
+        }));
 
-        return updatedChain;
+        return {
+          ...prev,
+          [selectedCommodity]: updatedChain
+        };
       });
 
-      setUsedCompanies(prev => new Set([...prev, `${location.company}-${location.site}`]));
+      // Update used companies for this commodity
+      setUsedCompaniesMap(prev => ({
+        ...prev,
+        [selectedCommodity]: new Set([...(prev[selectedCommodity] || []), `${location.company}-${location.site}`])
+      }));
     }
   };
 
   const handleRemoveCompany = (step, index) => {
     const removedCompany = customChain[step][index];
     
-    setCustomChain(prev => ({
-      ...prev,
-      [step]: prev[step].filter((_, i) => i !== index)
-    }));
-
-    setUsedCompanies(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(`${removedCompany.company}-${removedCompany.site}`);
-      return newSet;
+    setCustomChains(prev => {
+      const currentChain = prev[selectedCommodity];
+      return {
+        ...prev,
+        [selectedCommodity]: {
+          ...currentChain,
+          [step]: currentChain[step].filter((_, i) => i !== index)
+        }
+      };
     });
 
-    // Remove all connections involving this company and reindex remaining ones
-    setConnections(prev => {
-      return prev
+    setUsedCompaniesMap(prev => {
+      const currentUsed = new Set(prev[selectedCommodity]);
+      currentUsed.delete(`${removedCompany.company}-${removedCompany.site}`);
+      return {
+        ...prev,
+        [selectedCommodity]: currentUsed
+      };
+    });
+
+    setConnectionsMap(prev => {
+      const currentConnections = prev[selectedCommodity] || [];
+      const updatedConnections = currentConnections
         .filter(conn => !conn.start.startsWith(`${step}-${index}`) && !conn.end.startsWith(`${step}-${index}`))
         .map(conn => {
           let { start, end } = conn;
@@ -106,15 +136,23 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
 
           return { start, end };
         });
+
+      return {
+        ...prev,
+        [selectedCommodity]: updatedConnections
+      };
     });
   };
 
   const handleRemoveConnection = (index) => {
-    setConnections(prev => prev.filter((_, i) => i !== index));
+    setConnectionsMap(prev => ({
+      ...prev,
+      [selectedCommodity]: prev[selectedCommodity].filter((_, i) => i !== index)
+    }));
   };
 
   const isChainValid = () => {
-    return SUPPLY_CHAIN_STEPS.every(step => customChain[step].length > 0);
+    return customChain && SUPPLY_CHAIN_STEPS.every(step => customChain[step].length > 0);
   };
 
   const handleSearchInputChange = (step, value) => {
@@ -179,7 +217,10 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
               labelId="commodity-select-label"
               value={selectedCommodity}
               label="Select Commodity"
-              onChange={(e) => onCommodityChange(e.target.value)}
+              onChange={(e) => {
+                onCommodityChange(e.target.value);
+                setShowVisualization(false);
+              }}
               sx={{
                 fontFamily: 'SF Mono, Menlo, monospace',
                 fontSize: '0.875rem',
