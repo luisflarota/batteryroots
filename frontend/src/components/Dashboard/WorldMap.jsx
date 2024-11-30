@@ -13,7 +13,7 @@ const STAGE_COLORS = {
   'Distribution': '#FF375F'
 };
 
-const MARKER_SIZE = 2;
+const MARKER_SIZE = 10;
 
 const findConnectedStages = (data, startStage, year) => {
   const visited = new Set([startStage]);
@@ -117,7 +117,7 @@ const Legend = ({ onStageSelect, selectedStage, data }) => {
   );
 };
 
-const FlowLines = ({ data, selectedStage, selectedYear, onStageSelect, isLegendSelection }) => {
+const FlowLines = ({ data, selectedStage, selectedYear, onStageSelect, isLegendSelection, highlightedLinks }) => {
   const map = useMap();
   const theme = useTheme();
 
@@ -173,15 +173,17 @@ const FlowLines = ({ data, selectedStage, selectedYear, onStageSelect, isLegendS
 
         const lineWidth = getLineWidth(link.value);
         
-        let opacity = 0.5; // Default opacity
+        let opacity = 0.5;
         if (selectedStage) {
           if (isLegendSelection) {
-            // Legend selection: only show arrows from selected stage
             opacity = link.source === selectedStage ? 0.7 : 0.1;
           } else {
-            // Arrow selection: show connected stages
             opacity = connectedStages.has(link.source) && connectedStages.has(link.target) ? 0.7 : 0.1;
           }
+        }
+
+        if (highlightedLinks && highlightedLinks.has(link.source)) {
+          opacity = 1;
         }
 
         const midPoint = [
@@ -221,37 +223,13 @@ const FlowLines = ({ data, selectedStage, selectedYear, onStageSelect, isLegendS
           smoothFactor: 1,
           className: theme.palette.mode === 'dark' ? 'flow-line-dark' : 'flow-line'
         }).addTo(flowGroup);
-
-        polyline.on('click', () => {
-          onStageSelect(link.source, false);
-        });
-
-        const midIndex = Math.floor(curvePoints.length / 2);
-        const arrowPoint = curvePoints[midIndex];
-        const prevPoint = curvePoints[midIndex - 1];
-        const nextPoint = curvePoints[midIndex + 1];
-
-        const angle = Math.atan2(
-          nextPoint[0] - prevPoint[0],
-          nextPoint[1] - prevPoint[1]
-        ) * 180 / Math.PI;
-
-        L.marker(arrowPoint, {
-          icon: createArrowMarker(link.source, link.value),
-          rotationAngle: angle,
-          rotationOrigin: 'center',
-          opacity: opacity
-        }).addTo(flowGroup)
-        .on('click', () => {
-          onStageSelect(link.source, false);
-        });
       }
     });
 
     return () => {
       map.removeLayer(flowGroup);
     };
-  }, [map, data, selectedStage, selectedYear, theme.palette.mode, onStageSelect, isLegendSelection]);
+  }, [map, data, selectedStage, selectedYear, theme.palette.mode, onStageSelect, isLegendSelection, highlightedLinks]);
 
   return null;
 };
@@ -261,6 +239,36 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect, customData }) => {
   const data = customData || supplyChainData[commodity];
   const [isLegendSelection, setIsLegendSelection] = useState(false);
   const [sliderValue, setSliderValue] = useState(data?.years[0] || 2020);
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [hoveredLocation, setHoveredLocation] = useState(null);
+  const [highlightedLinks, setHighlightedLinks] = useState(new Set());
+  const [isCtrlPressed, setIsCtrlPressed] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      console.log('Key down:', e.key);
+      if (e.key === 'Control') {
+        console.log('Ctrl pressed');
+        setIsCtrlPressed(true);
+      }
+    };
+
+    const handleKeyUp = (e) => {
+      console.log('Key up:', e.key);
+      if (e.key === 'Control') {
+        console.log('Ctrl released');
+        setIsCtrlPressed(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
 
   if (!data) {
     return <Typography variant="body1">No data available for this commodity.</Typography>;
@@ -268,17 +276,24 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect, customData }) => {
 
   const handleStageSelect = (stage, fromLegend) => {
     setIsLegendSelection(fromLegend);
+    if (stage) {
+      setHighlightedLinks(new Set([stage]));
+      const location = data.locations[stage][0];
+      setSelectedLocation({
+        stage,
+        country: location.country,
+        value: location.value,
+        coordinates: location.coordinates
+      });
+    } else {
+      setHighlightedLinks(new Set());
+      setSelectedLocation(null);
+    }
     onStageSelect(stage);
   };
 
   const handleSliderChange = (event, newValue) => {
     setSliderValue(newValue);
-  };
-
-  const getSelectedLocationInfo = () => {
-    if (!selectedStage || !data.locations[selectedStage]) return null;
-    const location = data.locations[selectedStage][0];
-    return `${location.company} - ${location.site}`;
   };
 
   return (
@@ -331,47 +346,98 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect, customData }) => {
             selectedYear={sliderValue}
             onStageSelect={handleStageSelect}
             isLegendSelection={isLegendSelection}
+            highlightedLinks={highlightedLinks}
           />
 
           {Object.entries(data.locations).map(([stage, locations]) =>
-            locations.map((location, i) => (
-              <CircleMarker
-                key={`${stage}-${i}`}
-                center={[location.coordinates[1], location.coordinates[0]]}
-                radius={MARKER_SIZE}
-                fillColor="#FFFFFF"
-                color="#000000"
-                weight={1}
-                opacity={1}
-                fillOpacity={0.8}
-                className="map-marker"
+            locations.map((location, i) => {
+              const googleSearchQuery = `${location.country} ${stage.toLowerCase()} industry`;
+              const googleLink = `https://www.google.com/search?q=${encodeURIComponent(googleSearchQuery)}`;
+              
+              return (
+                <CircleMarker
+                  key={`${stage}-${i}`}
+                  center={[location.coordinates[1], location.coordinates[0]]}
+                  radius={MARKER_SIZE}
+                  fillColor={selectedLocation?.stage === stage ? STAGE_COLORS[stage] : "#FFFFFF"}
+                  color="#000000"
+                  weight={1}
+                  opacity={1}
+                  fillOpacity={0.8}
+                  className="map-marker"
+                  eventHandlers={{
+                    mouseover: () => {
+                      setHoveredLocation({ stage, location });
+                    },
+                    mouseout: (e) => {
+                      if (!isCtrlPressed) {  // Only hide if Ctrl is not pressed
+                        const tooltipEl = e.target.getTooltip()?.getElement();
+                        if (tooltipEl && !tooltipEl.matches(':hover')) {
+                          setHoveredLocation(null);
+                        }
+                      }
+                    },
+                    click: () => {
+                      if (isCtrlPressed) {
+                        setHoveredLocation({ stage, location });
+                      } else {
+                        handleStageSelect(stage, false);
+                      }
+                    }
+                  }}                  
+                >
+              <Tooltip 
+                permanent={hoveredLocation?.stage === stage || isCtrlPressed} // Note: removed the second condition
+                direction="top"
+                offset={[0, -10]}
               >
-                <Tooltip className="custom-tooltip">
-                  <Box sx={{ 
+                <Box 
+                  sx={{ 
                     p: 1,
                     bgcolor: theme.palette.background.paper,
-                    color: theme.palette.text.primary
-                  }}>
-                    <Typography variant="subtitle2">
-                      {stage}
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 'bold', mt: 0.5 }}>
-                      {location.company}
-                    </Typography>
-                    <Typography variant="body2" sx={{ mb: 0.5 }}>
-                      {location.site}
-                    </Typography>
-                    <Typography variant="body2">
-                      {location.country}
-                    </Typography>
-                  </Box>
-                </Tooltip>
-              </CircleMarker>
-            ))
+                    color: theme.palette.text.primary,
+                    pointerEvents: 'auto'  // Make sure this is set
+                  }}
+                  onMouseLeave={() => {
+                    if (!isCtrlPressed) {
+                      setHoveredLocation(null);
+                    }
+                  }}
+                >
+                  <Typography variant="body2">
+                    Stage: {stage}<br />
+                    Country: {location.country}<br />
+                    Value: {location.value}<br />
+                    <Box 
+                      component="a" 
+                      href={googleLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      sx={{
+                        color: STAGE_COLORS[stage],
+                        textDecoration: 'none',
+                        '&:hover': {
+                          textDecoration: 'underline'
+                        }
+                      }}
+                    >
+                      Search on Google →
+                    </Box>
+                    {isCtrlPressed && (
+                      <Box sx={{ mt: 1, color: 'text.secondary', fontSize: '0.75rem' }}>
+                        Ctrl is pressed
+                      </Box>
+                    )}
+                  </Typography>
+                </Box>
+              </Tooltip>
+                </CircleMarker>
+              );
+            })
           )}
         </MapContainer>
       </Box>
-    </Box>
+      </Box>
   );
 };
 

@@ -56,7 +56,8 @@ const App = () => {
           })
     },
     typography: {
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+      fontFamily: 'SF Mono, Menlo, monospace',
+      
     },
   }), [mode]);
 
