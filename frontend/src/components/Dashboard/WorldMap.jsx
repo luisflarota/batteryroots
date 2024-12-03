@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from 'react-leaflet';
 import { Box, Paper, Typography, Chip, Slider } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -123,6 +123,7 @@ const FlowLines = ({ data, selectedStage, selectedYear, onStageSelect, isLegendS
 
   useEffect(() => {
     const flowGroup = L.layerGroup().addTo(map);
+    const connectedStages = selectedStage ? findConnectedStages(data, selectedStage, selectedYear) : new Set();
 
     const yearData = data.dataByYear[selectedYear];
     const values = yearData.links.map(link => link.value);
@@ -134,30 +135,6 @@ const FlowLines = ({ data, selectedStage, selectedYear, onStageSelect, isLegendS
       const maxWidth = 12;
       return minWidth + ((value - minValue) / (maxValue - minValue)) * (maxWidth - minWidth);
     };
-
-    const createArrowMarker = (sourceStage, value) => {
-      const color = STAGE_COLORS[sourceStage];
-      const arrowSize = getLineWidth(value) + 2;
-      return L.divIcon({
-        html: `
-          <svg width="${arrowSize * 2}" height="${arrowSize * 2}" viewBox="0 0 14 14">
-            <path d="M2 7 L12 7 M8 3 L12 7 L8 11" 
-                  stroke="${color}" 
-                  stroke-width="${arrowSize/2}"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"/>
-          </svg>
-        `,
-        className: 'flow-arrow',
-        iconSize: [arrowSize * 2, arrowSize * 2],
-        iconAnchor: [arrowSize, arrowSize]
-      });
-    };
-
-    const connectedStages = selectedStage && !isLegendSelection ? 
-      findConnectedStages(data, selectedStage, selectedYear) : 
-      new Set();
 
     yearData.links.forEach(link => {
       const fromLocation = data.locations[link.source].find(loc => 
@@ -241,32 +218,15 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect, customData }) => {
   const [sliderValue, setSliderValue] = useState(data?.years[0] || 2020);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [hoveredLocation, setHoveredLocation] = useState(null);
+  const [isTooltipHovered, setIsTooltipHovered] = useState(false);
   const [highlightedLinks, setHighlightedLinks] = useState(new Set());
-  const [isCtrlPressed, setIsCtrlPressed] = useState(false);
+  const timeoutRef = useRef(null);
 
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      console.log('Key down:', e.key);
-      if (e.key === 'Control') {
-        console.log('Ctrl pressed');
-        setIsCtrlPressed(true);
-      }
-    };
-
-    const handleKeyUp = (e) => {
-      console.log('Key up:', e.key);
-      if (e.key === 'Control') {
-        console.log('Ctrl released');
-        setIsCtrlPressed(false);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
   }, []);
 
@@ -292,8 +252,19 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect, customData }) => {
     onStageSelect(stage);
   };
 
-  const handleSliderChange = (event, newValue) => {
-    setSliderValue(newValue);
+  const handleMarkerMouseOut = (e) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    timeoutRef.current = setTimeout(() => {
+      const tooltipEl = e.target._tooltip?._container;
+      const relatedTarget = e.originalEvent.relatedTarget;
+      
+      if (tooltipEl && !tooltipEl.contains(relatedTarget) && !isTooltipHovered) {
+        setHoveredLocation(null);
+      }
+    }, 50);
   };
 
   return (
@@ -316,7 +287,7 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect, customData }) => {
         <Typography gutterBottom color="text.primary">Select Year</Typography>
         <Slider
           value={sliderValue}
-          onChange={handleSliderChange}
+          onChange={(event, newValue) => setSliderValue(newValue)}
           aria-labelledby="year-slider"
           min={data.years[0]}
           max={data.years[data.years.length - 1]}
@@ -352,7 +323,12 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect, customData }) => {
           {Object.entries(data.locations).map(([stage, locations]) =>
             locations.map((location, i) => {
               const googleSearchQuery = `${location.country} ${stage.toLowerCase()} industry`;
-              const googleLink = `https://www.google.com/search?q=${encodeURIComponent(googleSearchQuery)}`;
+              const googleLink = `https://www.google.com`;
+              const isHovered = (hoveredLocation?.stage === stage && 
+                               hoveredLocation?.location.country === location.country) || 
+                               (isTooltipHovered && 
+                               hoveredLocation?.stage === stage && 
+                               hoveredLocation?.location.country === location.country);
               
               return (
                 <CircleMarker
@@ -367,77 +343,70 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect, customData }) => {
                   className="map-marker"
                   eventHandlers={{
                     mouseover: () => {
+                      if (timeoutRef.current) {
+                        clearTimeout(timeoutRef.current);
+                      }
                       setHoveredLocation({ stage, location });
+                      setIsTooltipHovered(true);
                     },
-                    mouseout: (e) => {
-                      if (!isCtrlPressed) {  // Only hide if Ctrl is not pressed
-                        const tooltipEl = e.target.getTooltip()?.getElement();
-                        if (tooltipEl && !tooltipEl.matches(':hover')) {
-                          setHoveredLocation(null);
-                        }
-                      }
-                    },
+                    mouseout: handleMarkerMouseOut,
                     click: () => {
-                      if (isCtrlPressed) {
-                        setHoveredLocation({ stage, location });
-                      } else {
-                        handleStageSelect(stage, false);
-                      }
-                    }
-                  }}                  
-                >
-              <Tooltip 
-                permanent={hoveredLocation?.stage === stage || isCtrlPressed} // Note: removed the second condition
-                direction="top"
-                offset={[0, -10]}
-              >
-                <Box 
-                  sx={{ 
-                    p: 1,
-                    bgcolor: theme.palette.background.paper,
-                    color: theme.palette.text.primary,
-                    pointerEvents: 'auto'  // Make sure this is set
-                  }}
-                  onMouseLeave={() => {
-                    if (!isCtrlPressed) {
-                      setHoveredLocation(null);
+                      handleStageSelect(stage, false);
                     }
                   }}
                 >
-                  <Typography variant="body2">
-                    Stage: {stage}<br />
-                    Country: {location.country}<br />
-                    Value: {location.value}<br />
-                    <Box 
-                      component="a" 
-                      href={googleLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      sx={{
-                        color: STAGE_COLORS[stage],
-                        textDecoration: 'none',
-                        '&:hover': {
-                          textDecoration: 'underline'
-                        }
+                  {isHovered && (
+                    <Tooltip 
+                      permanent={true}
+                      direction="top"
+                      offset={[0, -10]}
+                      className="custom-tooltip"
+                      style={{ zIndex: 1000, pointerEvents: 'auto' }}
+                      onMouseEnter={() => setIsTooltipHovered(true)}
+                      onMouseLeave={() => {
+                        setIsTooltipHovered(false);
+                        setHoveredLocation(null);
                       }}
                     >
-                      Search on Google →
-                    </Box>
-                    {isCtrlPressed && (
-                      <Box sx={{ mt: 1, color: 'text.secondary', fontSize: '0.75rem' }}>
-                        Ctrl is pressed
-                      </Box>
-                    )}
-                  </Typography>
-                </Box>
-              </Tooltip>
+                      <div 
+                        style={{ 
+                          padding: '8px',
+                          backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                          color: 'white',
+                          borderRadius: '4px',
+                          minWidth: '200px',
+                          cursor: 'default'
+                        }}
+                        onMouseEnter={() => setIsTooltipHovered(true)}
+                        onMouseLeave={() => {
+                          setIsTooltipHovered(false);
+                          setHoveredLocation(null);
+                        }}
+                      >
+                        <Typography variant="body2" sx={{ mb: 1 }}>
+                          {stage}<br />
+                          {location.country}
+                        </Typography>
+                        <a 
+                          href={googleLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                        >
+                          View details →
+                        </a>
+                      </div>
+                    </Tooltip>
+                  )}
                 </CircleMarker>
               );
             })
           )}
         </MapContainer>
       </Box>
-      </Box>
+    </Box>
   );
 };
 
