@@ -1,1 +1,1 @@
-![Flow Diagram](src/data/flow.png)
+![Flow Diagram](flow.png)
