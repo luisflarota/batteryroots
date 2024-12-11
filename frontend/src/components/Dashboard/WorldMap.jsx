@@ -9,8 +9,8 @@ import 'leaflet/dist/leaflet.css';
 const STAGE_COLORS = {
   'Mining': '#0A84FF',
   'Processing': '#30B82C',
-  'Manufacturing': '#FF9F0A',
-  'Distribution': '#FF375F'
+  'Cathode': '#FF9F0A',
+  'EV': '#FF375F'
 };
 
 const MARKER_SIZE = 10;
@@ -252,16 +252,21 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect, customData }) => {
     onStageSelect(stage);
   };
 
-  const handleMarkerMouseOut = (e) => {
+  const handleMarkerMouseEnter = (stage, location) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    setHoveredLocation({ stage, location });
+    setIsTooltipHovered(true);
+  };
+
+  const handleMarkerMouseLeave = () => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
     
     timeoutRef.current = setTimeout(() => {
-      const tooltipEl = e.target._tooltip?._container;
-      const relatedTarget = e.originalEvent.relatedTarget;
-      
-      if (tooltipEl && !tooltipEl.contains(relatedTarget) && !isTooltipHovered) {
+      if (!isTooltipHovered) {
         setHoveredLocation(null);
       }
     }, 50);
@@ -300,7 +305,7 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect, customData }) => {
         <MapContainer
           center={[20, 0]}
           zoom={2}
-          style={{ height: '100%', width: '100%' }}
+          style={{ height: '100%', width: '100%', position: 'relative', zIndex: 0 }}
           scrollWheelZoom={true}
         >
           <TileLayer
@@ -323,12 +328,8 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect, customData }) => {
           {Object.entries(data.locations).map(([stage, locations]) =>
             locations.map((location, i) => {
               const googleSearchQuery = `${location.country} ${stage.toLowerCase()} industry`;
-              const googleLink = `https://www.google.com`;
-              const isHovered = (hoveredLocation?.stage === stage && 
-                               hoveredLocation?.location.country === location.country) || 
-                               (isTooltipHovered && 
-                               hoveredLocation?.stage === stage && 
-                               hoveredLocation?.location.country === location.country);
+              const googleLink = `https://www.google.com/search?q=${encodeURIComponent(googleSearchQuery)}`;
+              const isHovered = hoveredLocation?.stage === stage && hoveredLocation?.location.country === location.country;
               
               return (
                 <CircleMarker
@@ -342,14 +343,20 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect, customData }) => {
                   fillOpacity={0.8}
                   className="map-marker"
                   eventHandlers={{
-                    mouseover: () => {
-                      if (timeoutRef.current) {
-                        clearTimeout(timeoutRef.current);
+                    mouseover: (event) => {
+                      handleMarkerMouseEnter(stage, location);
+                      const marker = L.DomUtil.get(event.target._path);
+                      if (marker) {
+                        marker.style.zIndex = 1000;
                       }
-                      setHoveredLocation({ stage, location });
-                      setIsTooltipHovered(true);
                     },
-                    mouseout: handleMarkerMouseOut,
+                    mouseout: (event) => {
+                      handleMarkerMouseLeave();
+                      const marker = L.DomUtil.get(event.target._path);
+                      if (marker) {
+                        marker.style.zIndex = '';
+                      }
+                    },
                     click: () => {
                       handleStageSelect(stage, false);
                     }
@@ -361,12 +368,7 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect, customData }) => {
                       direction="top"
                       offset={[0, -10]}
                       className="custom-tooltip"
-                      style={{ zIndex: 1000, pointerEvents: 'auto' }}
-                      onMouseEnter={() => setIsTooltipHovered(true)}
-                      onMouseLeave={() => {
-                        setIsTooltipHovered(false);
-                        setHoveredLocation(null);
-                      }}
+                      opacity={1}
                     >
                       <div 
                         style={{ 
@@ -384,6 +386,9 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect, customData }) => {
                         }}
                       >
                         <Typography variant="body2" sx={{ mb: 1 }}>
+                          This location is part of the global supply chain.
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 1 }}>
                           {stage}<br />
                           {location.country}
                         </Typography>
@@ -394,8 +399,20 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect, customData }) => {
                           onClick={(e) => {
                             e.stopPropagation();
                           }}
+                          style={{
+                            color: '#3b82f6',
+                            textDecoration: 'none',
+                            display: 'inline-block',
+                            pointerEvents: 'auto'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.textDecoration = 'underline';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.textDecoration = 'none';
+                          }}
                         >
-                          View details →
+                          Read More →
                         </a>
                       </div>
                     </Tooltip>
@@ -411,3 +428,4 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect, customData }) => {
 };
 
 export default WorldMap;
+

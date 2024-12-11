@@ -6,8 +6,8 @@ const Legend = () => {
   const legendItems = [
     { color: '#1976d2', label: 'Mining' },
     { color: '#2196f3', label: 'Processing' },
-    { color: '#64b5f6', label: 'Manufacturing' },
-    { color: '#90caf9', label: 'Distribution' }
+    { color: '#64b5f6', label: 'Cathode' },
+    { color: '#90caf9', label: 'EV' }
   ];
 
   return (

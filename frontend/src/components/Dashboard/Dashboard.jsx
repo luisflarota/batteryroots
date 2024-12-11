@@ -93,7 +93,7 @@ const Dashboard = ({ selectedCommodity, onCommodityChange }) => {
       <Paper 
         elevation={0} 
         sx={{ 
-          height: isMobile ? '600px' : '1000px',
+          height: isMobile ? '400px' : '700px',
           width: '100%',
           borderRadius: 2,
           border: '1px solid',

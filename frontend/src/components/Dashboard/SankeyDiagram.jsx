@@ -6,8 +6,8 @@ import { supplyChainData } from '../../data/dummy-data';
 const STAGE_COLORS = {
   'Mining': '#0A84FF',      // iOS Blue
   'Processing': '#30B82C',  // iOS Green
-  'Manufacturing': '#FF9F0A',// iOS Orange
-  'Distribution': '#FF375F' // iOS Red
+  'Cathode': '#FF9F0A',// iOS Orange
+  'EV': '#FF375F' // iOS Red
 };
 
 const SankeyDiagram = ({ commodity, selectedStage, onStageSelect }) => {

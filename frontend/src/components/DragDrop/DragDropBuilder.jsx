@@ -8,9 +8,12 @@ import { supplyChainData } from '../../data/dummy-data';
 import Autocomplete from '@mui/material/Autocomplete';
 import { useTheme } from '@mui/material/styles';
 
-const SUPPLY_CHAIN_STEPS = ['Mining', 'Processing', 'Manufacturing', 'Distribution'];
+const SUPPLY_CHAIN_STEPS = ['Mining', 'Processing', 'Cathode', 'EV'];
 
 const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
+  const [inputYear, setInputYear] = useState(2024);
+  const [selectedYears, setSelectedYears] = useState(new Set());
+  const [editingYears, setEditingYears] = useState(new Set());
   const [customChains, setCustomChains] = useState({});
   const [connectionsMap, setConnectionsMap] = useState({});
   const [usedCompaniesMap, setUsedCompaniesMap] = useState({});
@@ -24,8 +27,8 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
   const customChain = customChains[selectedCommodity] || {
     Mining: [],
     Processing: [],
-    Manufacturing: [],
-    Distribution: []
+    Cathode: [],
+    EV: []
   };
   const connections = connectionsMap[selectedCommodity] || [];
   const usedCompanies = usedCompaniesMap[selectedCommodity] || new Set();
@@ -37,8 +40,8 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
         const currentChain = prev[selectedCommodity] || {
           Mining: [],
           Processing: [],
-          Manufacturing: [],
-          Distribution: []
+          Cathode: [],
+          EV: []
         };
         
         const updatedChain = {
@@ -194,16 +197,16 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
     );
   };
 
-  const getCustomMapData = () => {
+  const getCustomMapData = (year) => {
     return {
       nodes: SUPPLY_CHAIN_STEPS.map(id => ({ 
         id, 
         name: id, 
-        type: id === 'Mining' ? 'source' : id === 'Distribution' ? 'target' : 'process' 
+        type: id === 'Mining' ? 'source' : id === 'EV' ? 'target' : 'process' 
       })),
       locations: customChain,
       dataByYear: {
-        2024: {
+        [year]: {
           links: connections.map(conn => {
             const [sourceStep, sourceIndex] = conn.start.split('-');
             const [targetStep, targetIndex] = conn.end.split('-');
@@ -220,8 +223,41 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
           })
         }
       },
-      years: [2024]
+      years: [year]
     };
+  };
+
+  const handleInputYearChange = (e) => {
+    const year = parseInt(e.target.value);
+    if (!isNaN(year) && year >= 1900 && year <= 2100) {
+      setInputYear(year);
+    }
+  };
+
+  const yearOptions = Array.from({ length: 7 }, (_, i) => inputYear - 3 + i);
+
+  const handleYearClick = (year) => {
+    const newSelectedYears = new Set(selectedYears);
+    const newEditingYears = new Set(editingYears);
+
+    if (newEditingYears.has(year)) {
+      newEditingYears.delete(year);
+    } else if (newSelectedYears.has(year)) {
+      newEditingYears.add(year);
+    } else {
+      newSelectedYears.add(year);
+    }
+
+    if (!newEditingYears.has(year) && !newSelectedYears.has(year)) {
+      newSelectedYears.delete(year);
+    }
+
+    if (newSelectedYears.has(year) && !newEditingYears.has(year)) {
+      newSelectedYears.delete(year);
+    }
+
+    setSelectedYears(newSelectedYears);
+    setEditingYears(newEditingYears);
   };
 
   return (
@@ -229,7 +265,7 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
         <Box sx={{ 
           display: 'flex', 
-          justifyContent: 'space-between',
+          justifyContent: 'flex-start',
           alignItems: 'center',
           flexWrap: 'nowrap',
           gap: 2
@@ -270,14 +306,61 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
               ))}
             </Select>
           </FormControl>
+
+          <TextField
+            type="number"
+            value={inputYear}
+            onChange={handleInputYearChange}
+            label="Year"
+            variant="outlined"
+            sx={{ minWidth: 100 }}
+          />
+
+          {/* Year selection boxes */}
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            {yearOptions.map(year => (
+              <Paper 
+                key={year}
+                onClick={() => handleYearClick(year)}
+                sx={{ 
+                  padding: 2, 
+                  cursor: 'pointer', 
+                  bgcolor: selectedYears.has(year) ? 'primary.main' : (editingYears.has(year) ? 'primary.main' : 'grey.300'),
+                  color: selectedYears.has(year) || editingYears.has(year) ? 'white' : 'black',
+                  border: editingYears.has(year) ? '2px dashed yellow' : 'none',
+                  borderRadius: 1,
+                  textAlign: 'center',
+                  transition: 'background-color 0.3s',
+                  '&:hover': {
+                    bgcolor: selectedYears.has(year) ? 'primary.dark' : (editingYears.has(year) ? 'primary.main' : 'grey.400')
+                  }
+                }}
+              >
+                {year}
+              </Paper>
+            ))}
+          </Box>
+
           <Button 
             variant="contained"
             disabled={!isChainValid()}
             onClick={() => setShowVisualization(true)}
-            sx={{ flexShrink: 0 }}
+            sx={{ flexShrink: 0, marginLeft: 'auto' }}
           >
             Visualize Chain
           </Button>
+        </Box>
+
+        {/* Legend for colors */}
+        <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Paper sx={{ bgcolor: 'primary.main', width: 20, height: 20, borderRadius: 1 }} />
+            <Typography variant="body2" sx={{ ml: 1 }}>Active Year</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Paper sx={{ border: '2px dashed yellow', width: 20, height: 20, borderRadius: 1 }} />
+            <Typography variant="body2" sx={{ ml: 1 }}>Editing Year</Typography>
+          </Box>
         </Box>
 
         <Xwrapper>
@@ -461,12 +544,12 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
       {showVisualization && (
         <Box sx={{ mt: 4, border: 1, borderColor: 'divider', borderRadius: 1, p: 2 }}>
           <Typography variant="h6" gutterBottom>
-            Custom Supply Chain
+            Custom Supply Chain for {inputYear}
           </Typography>
           <Box sx={{ height: '80vh' }}>
             <WorldMap
               commodity={selectedCommodity}
-              customData={getCustomMapData()}
+              customData={getCustomMapData(inputYear)}
               isCustomView={true}
             />
           </Box>

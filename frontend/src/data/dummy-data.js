@@ -1,15 +1,15 @@
 // src/data/dummy-data.js
 export const commodities = ['Lithium', 'Cobalt', 'Nickel'];
 
-export const SUPPLY_CHAIN_STEPS = ['Mining', 'Processing', 'Manufacturing', 'Distribution'];
+export const SUPPLY_CHAIN_STEPS = ['Mining', 'Processing', 'Cathode', 'EV'];
 
 export const supplyChainData = {
   Lithium: {
     nodes: [
       { id: 'Mining', name: 'Mining', type: 'source' },
       { id: 'Processing', name: 'Processing', type: 'process' },
-      { id: 'Manufacturing', name: 'Manufacturing', type: 'process' },
-      { id: 'Distribution', name: 'Distribution', type: 'target' }
+      { id: 'Cathode', name: 'Cathode', type: 'process' },
+      { id: 'EV', name: 'EV', type: 'target' }
     ],
     locations: {
       Mining: [
@@ -40,7 +40,7 @@ export const supplyChainData = {
           site: 'Silver Peak'
         }
       ],
-      Manufacturing: [
+      Cathode: [
         { 
           country: 'USA',
           coordinates: [-95.7129, 37.0902],
@@ -54,17 +54,17 @@ export const supplyChainData = {
           site: 'Schwarzheide Plant'
         }
       ],
-      Distribution: [
+      EV: [
         { 
           country: 'USA',
           coordinates: [-95.7129, 37.0902],
-          company: 'US Distribution',
+          company: 'US EV',
           site: 'National Network'
         },
         {
           country: 'DEU',
           coordinates: [10.4515, 51.1657],
-          company: 'EU Distribution',
+          company: 'EU EV',
           site: 'European Network'
         }
       ]
@@ -75,50 +75,50 @@ export const supplyChainData = {
         links: [
           { source: "Mining", sourceCountry: "AUS", target: "Processing", targetCountry: "CHN", value: 1500 },
           { source: "Mining", sourceCountry: "CHL", target: "Processing", targetCountry: "CHN", value: 2000 },
-          { source: "Processing", sourceCountry: "CHN", target: "Manufacturing", targetCountry: "USA", value: 1800 },
-          { source: "Processing", sourceCountry: "CHN", target: "Manufacturing", targetCountry: "DEU", value: 1500 },
-          { source: "Manufacturing", sourceCountry: "USA", target: "Distribution", targetCountry: "USA", value: 1600 },
-          { source: "Manufacturing", sourceCountry: "DEU", target: "Distribution", targetCountry: "DEU", value: 1400 }
+          { source: "Processing", sourceCountry: "CHN", target: "Cathode", targetCountry: "USA", value: 1800 },
+          { source: "Processing", sourceCountry: "CHN", target: "Cathode", targetCountry: "DEU", value: 1500 },
+          { source: "Cathode", sourceCountry: "USA", target: "EV", targetCountry: "USA", value: 1600 },
+          { source: "Cathode", sourceCountry: "DEU", target: "EV", targetCountry: "DEU", value: 1400 }
         ]
       },
       2021: {
         links: [
           { source: "Mining", sourceCountry: "AUS", target: "Processing", targetCountry: "CHN", value: 1800 },
           { source: "Mining", sourceCountry: "CHL", target: "Processing", targetCountry: "USA", value: 1200 },
-          { source: "Processing", sourceCountry: "CHN", target: "Manufacturing", targetCountry: "USA", value: 1600 },
-          { source: "Processing", sourceCountry: "USA", target: "Manufacturing", targetCountry: "DEU", value: 1000 },
-          { source: "Manufacturing", sourceCountry: "USA", target: "Distribution", targetCountry: "USA", value: 1400 },
-          { source: "Manufacturing", sourceCountry: "DEU", target: "Distribution", targetCountry: "DEU", value: 1200 }
+          { source: "Processing", sourceCountry: "CHN", target: "Cathode", targetCountry: "USA", value: 1600 },
+          { source: "Processing", sourceCountry: "USA", target: "Cathode", targetCountry: "DEU", value: 1000 },
+          { source: "Cathode", sourceCountry: "USA", target: "EV", targetCountry: "USA", value: 1400 },
+          { source: "Cathode", sourceCountry: "DEU", target: "EV", targetCountry: "DEU", value: 1200 }
         ]
       },
       2022: {
         links: [
           { source: "Mining", sourceCountry: "AUS", target: "Processing", targetCountry: "USA", value: 2000 },
           { source: "Mining", sourceCountry: "CHL", target: "Processing", targetCountry: "CHN", value: 1800 },
-          { source: "Processing", sourceCountry: "USA", target: "Manufacturing", targetCountry: "USA", value: 1900 },
-          { source: "Processing", sourceCountry: "CHN", target: "Manufacturing", targetCountry: "DEU", value: 1700 },
-          { source: "Manufacturing", sourceCountry: "USA", target: "Distribution", targetCountry: "USA", value: 1800 },
-          { source: "Manufacturing", sourceCountry: "DEU", target: "Distribution", targetCountry: "DEU", value: 1600 }
+          { source: "Processing", sourceCountry: "USA", target: "Cathode", targetCountry: "USA", value: 1900 },
+          { source: "Processing", sourceCountry: "CHN", target: "Cathode", targetCountry: "DEU", value: 1700 },
+          { source: "Cathode", sourceCountry: "USA", target: "EV", targetCountry: "USA", value: 1800 },
+          { source: "Cathode", sourceCountry: "DEU", target: "EV", targetCountry: "DEU", value: 1600 }
         ]
       },
       2023: {
         links: [
           { source: "Mining", sourceCountry: "AUS", target: "Processing", targetCountry: "USA", value: 2200 },
           { source: "Mining", sourceCountry: "CHL", target: "Processing", targetCountry: "USA", value: 2000 },
-          { source: "Processing", sourceCountry: "USA", target: "Manufacturing", targetCountry: "USA", value: 2100 },
-          { source: "Processing", sourceCountry: "USA", target: "Manufacturing", targetCountry: "DEU", value: 1900 },
-          { source: "Manufacturing", sourceCountry: "USA", target: "Distribution", targetCountry: "USA", value: 2000 },
-          { source: "Manufacturing", sourceCountry: "DEU", target: "Distribution", targetCountry: "DEU", value: 1800 }
+          { source: "Processing", sourceCountry: "USA", target: "Cathode", targetCountry: "USA", value: 2100 },
+          { source: "Processing", sourceCountry: "USA", target: "Cathode", targetCountry: "DEU", value: 1900 },
+          { source: "Cathode", sourceCountry: "USA", target: "EV", targetCountry: "USA", value: 2000 },
+          { source: "Cathode", sourceCountry: "DEU", target: "EV", targetCountry: "DEU", value: 1800 }
         ]
       },
       2024: {
         links: [
           { source: "Mining", sourceCountry: "AUS", target: "Processing", targetCountry: "USA", value: 2500 },
           { source: "Mining", sourceCountry: "CHL", target: "Processing", targetCountry: "USA", value: 2300 },
-          { source: "Processing", sourceCountry: "USA", target: "Manufacturing", targetCountry: "USA", value: 2400 },
-          { source: "Processing", sourceCountry: "USA", target: "Manufacturing", targetCountry: "DEU", value: 2200 },
-          { source: "Manufacturing", sourceCountry: "USA", target: "Distribution", targetCountry: "USA", value: 2300 },
-          { source: "Manufacturing", sourceCountry: "DEU", target: "Distribution", targetCountry: "DEU", value: 2100 }
+          { source: "Processing", sourceCountry: "USA", target: "Cathode", targetCountry: "USA", value: 2400 },
+          { source: "Processing", sourceCountry: "USA", target: "Cathode", targetCountry: "DEU", value: 2200 },
+          { source: "Cathode", sourceCountry: "USA", target: "EV", targetCountry: "USA", value: 2300 },
+          { source: "Cathode", sourceCountry: "DEU", target: "EV", targetCountry: "DEU", value: 2100 }
         ]
       }
     }
@@ -127,8 +127,8 @@ export const supplyChainData = {
     nodes: [
       { id: 'Mining', name: 'Mining', type: 'source' },
       { id: 'Processing', name: 'Processing', type: 'process' },
-      { id: 'Manufacturing', name: 'Manufacturing', type: 'process' },
-      { id: 'Distribution', name: 'Distribution', type: 'target' }
+      { id: 'Cathode', name: 'Cathode', type: 'process' },
+      { id: 'EV', name: 'EV', type: 'target' }
     ],
     locations: {
       Mining: [
@@ -159,7 +159,7 @@ export const supplyChainData = {
           site: 'Kokkola Plant'
         }
       ],
-      Manufacturing: [
+      Cathode: [
         { 
           country: 'JPN',
           coordinates: [138.2529, 36.2048],
@@ -173,17 +173,17 @@ export const supplyChainData = {
           site: 'Ulsan Plant'
         }
       ],
-      Distribution: [
+      EV: [
         { 
           country: 'JPN',
           coordinates: [138.2529, 36.2048],
-          company: 'Asian Distribution',
+          company: 'Asian EV',
           site: 'Regional Network'
         },
         {
           country: 'DEU',
           coordinates: [10.4515, 51.1657],
-          company: 'EU Distribution',
+          company: 'EU EV',
           site: 'European Network'
         }
       ]
@@ -194,50 +194,50 @@ export const supplyChainData = {
         links: [
           { source: "Mining", sourceCountry: "COD", target: "Processing", targetCountry: "CHN", value: 1600 },
           { source: "Mining", sourceCountry: "ZMB", target: "Processing", targetCountry: "CHN", value: 1400 },
-          { source: "Processing", sourceCountry: "CHN", target: "Manufacturing", targetCountry: "JPN", value: 1500 },
-          { source: "Processing", sourceCountry: "CHN", target: "Manufacturing", targetCountry: "KOR", value: 1300 },
-          { source: "Manufacturing", sourceCountry: "JPN", target: "Distribution", targetCountry: "JPN", value: 1400 },
-          { source: "Manufacturing", sourceCountry: "KOR", target: "Distribution", targetCountry: "DEU", value: 1200 }
+          { source: "Processing", sourceCountry: "CHN", target: "Cathode", targetCountry: "JPN", value: 1500 },
+          { source: "Processing", sourceCountry: "CHN", target: "Cathode", targetCountry: "KOR", value: 1300 },
+          { source: "Cathode", sourceCountry: "JPN", target: "EV", targetCountry: "JPN", value: 1400 },
+          { source: "Cathode", sourceCountry: "KOR", target: "EV", targetCountry: "DEU", value: 1200 }
         ]
       },
       2021: {
         links: [
           { source: "Mining", sourceCountry: "COD", target: "Processing", targetCountry: "FIN", value: 1800 },
           { source: "Mining", sourceCountry: "ZMB", target: "Processing", targetCountry: "CHN", value: 1500 },
-          { source: "Processing", sourceCountry: "FIN", target: "Manufacturing", targetCountry: "JPN", value: 1700 },
-          { source: "Processing", sourceCountry: "CHN", target: "Manufacturing", targetCountry: "KOR", value: 1400 },
-          { source: "Manufacturing", sourceCountry: "JPN", target: "Distribution", targetCountry: "JPN", value: 1600 },
-          { source: "Manufacturing", sourceCountry: "KOR", target: "Distribution", targetCountry: "DEU", value: 1300 }
+          { source: "Processing", sourceCountry: "FIN", target: "Cathode", targetCountry: "JPN", value: 1700 },
+          { source: "Processing", sourceCountry: "CHN", target: "Cathode", targetCountry: "KOR", value: 1400 },
+          { source: "Cathode", sourceCountry: "JPN", target: "EV", targetCountry: "JPN", value: 1600 },
+          { source: "Cathode", sourceCountry: "KOR", target: "EV", targetCountry: "DEU", value: 1300 }
         ]
       },
       2022: {
         links: [
           { source: "Mining", sourceCountry: "COD", target: "Processing", targetCountry: "FIN", value: 2000 },
           { source: "Mining", sourceCountry: "ZMB", target: "Processing", targetCountry: "FIN", value: 1700 },
-          { source: "Processing", sourceCountry: "FIN", target: "Manufacturing", targetCountry: "KOR", value: 1900 },
-          { source: "Processing", sourceCountry: "FIN", target: "Manufacturing", targetCountry: "JPN", value: 1600 },
-          { source: "Manufacturing", sourceCountry: "KOR", target: "Distribution", targetCountry: "DEU", value: 1800 },
-          { source: "Manufacturing", sourceCountry: "JPN", target: "Distribution", targetCountry: "JPN", value: 1500 }
+          { source: "Processing", sourceCountry: "FIN", target: "Cathode", targetCountry: "KOR", value: 1900 },
+          { source: "Processing", sourceCountry: "FIN", target: "Cathode", targetCountry: "JPN", value: 1600 },
+          { source: "Cathode", sourceCountry: "KOR", target: "EV", targetCountry: "DEU", value: 1800 },
+          { source: "Cathode", sourceCountry: "JPN", target: "EV", targetCountry: "JPN", value: 1500 }
         ]
       },
       2023: {
         links: [
           { source: "Mining", sourceCountry: "COD", target: "Processing", targetCountry: "FIN", value: 2200 },
           { source: "Mining", sourceCountry: "ZMB", target: "Processing", targetCountry: "FIN", value: 1900 },
-          { source: "Processing", sourceCountry: "FIN", target: "Manufacturing", targetCountry: "KOR", value: 2100 },
-          { source: "Processing", sourceCountry: "FIN", target: "Manufacturing", targetCountry: "JPN", value: 1800 },
-          { source: "Manufacturing", sourceCountry: "KOR", target: "Distribution", targetCountry: "DEU", value: 2000 },
-          { source: "Manufacturing", sourceCountry: "JPN", target: "Distribution", targetCountry: "JPN", value: 1700 }
+          { source: "Processing", sourceCountry: "FIN", target: "Cathode", targetCountry: "KOR", value: 2100 },
+          { source: "Processing", sourceCountry: "FIN", target: "Cathode", targetCountry: "JPN", value: 1800 },
+          { source: "Cathode", sourceCountry: "KOR", target: "EV", targetCountry: "DEU", value: 2000 },
+          { source: "Cathode", sourceCountry: "JPN", target: "EV", targetCountry: "JPN", value: 1700 }
         ]
       },
       2024: {
         links: [
           { source: "Mining", sourceCountry: "COD", target: "Processing", targetCountry: "FIN", value: 2400 },
           { source: "Mining", sourceCountry: "ZMB", target: "Processing", targetCountry: "FIN", value: 2100 },
-          { source: "Processing", sourceCountry: "FIN", target: "Manufacturing", targetCountry: "KOR", value: 2300 },
-          { source: "Processing", sourceCountry: "FIN", target: "Manufacturing", targetCountry: "JPN", value: 2000 },
-          { source: "Manufacturing", sourceCountry: "KOR", target: "Distribution", targetCountry: "DEU", value: 2200 },
-          { source: "Manufacturing", sourceCountry: "JPN", target: "Distribution", targetCountry: "JPN", value: 1900 }
+          { source: "Processing", sourceCountry: "FIN", target: "Cathode", targetCountry: "KOR", value: 2300 },
+          { source: "Processing", sourceCountry: "FIN", target: "Cathode", targetCountry: "JPN", value: 2000 },
+          { source: "Cathode", sourceCountry: "KOR", target: "EV", targetCountry: "DEU", value: 2200 },
+          { source: "Cathode", sourceCountry: "JPN", target: "EV", targetCountry: "JPN", value: 1900 }
         ]
       }
     }
@@ -246,8 +246,8 @@ export const supplyChainData = {
     nodes: [
       { id: 'Mining', name: 'Mining', type: 'source' },
       { id: 'Processing', name: 'Processing', type: 'process' },
-      { id: 'Manufacturing', name: 'Manufacturing', type: 'process' },
-      { id: 'Distribution', name: 'Distribution', type: 'target' }
+      { id: 'Cathode', name: 'Cathode', type: 'process' },
+      { id: 'EV', name: 'EV', type: 'target' }
     ],
     locations: {
       Mining: [
@@ -278,7 +278,7 @@ export const supplyChainData = {
           site: 'Niihama Refinery'
         }
       ],
-      Manufacturing: [
+      Cathode: [
         { 
           country: 'KOR',
           coordinates: [127.7669, 35.9078],
@@ -292,17 +292,17 @@ export const supplyChainData = {
           site: 'Ningde Factory'
         }
       ],
-      Distribution: [
+      EV: [
         { 
           country: 'KOR',
           coordinates: [127.7669, 35.9078],
-          company: 'Asian Distribution',
+          company: 'Asian EV',
           site: 'Regional Network'
         },
         {
           country: 'USA',
           coordinates: [-95.7129, 37.0902],
-          company: 'US Distribution',
+          company: 'US EV',
           site: 'National Network'
         }
       ]
@@ -313,50 +313,50 @@ export const supplyChainData = {
         links: [
           { source: "Mining", sourceCountry: "IDN", target: "Processing", targetCountry: "CHN", value: 1700 },
           { source: "Mining", sourceCountry: "PHL", target: "Processing", targetCountry: "JPN", value: 1500 },
-          { source: "Processing", sourceCountry: "CHN", target: "Manufacturing", targetCountry: "CHN", value: 1600 },
-          { source: "Processing", sourceCountry: "JPN", target: "Manufacturing", targetCountry: "KOR", value: 1400 },
-          { source: "Manufacturing", sourceCountry: "CHN", target: "Distribution", targetCountry: "USA", value: 1500 },
-          { source: "Manufacturing", sourceCountry: "KOR", target: "Distribution", targetCountry: "KOR", value: 1300 }
+          { source: "Processing", sourceCountry: "CHN", target: "Cathode", targetCountry: "CHN", value: 1600 },
+          { source: "Processing", sourceCountry: "JPN", target: "Cathode", targetCountry: "KOR", value: 1400 },
+          { source: "Cathode", sourceCountry: "CHN", target: "EV", targetCountry: "USA", value: 1500 },
+          { source: "Cathode", sourceCountry: "KOR", target: "EV", targetCountry: "KOR", value: 1300 }
         ]
       },
       2021: {
         links: [
           { source: "Mining", sourceCountry: "IDN", target: "Processing", targetCountry: "CHN", value: 1900 },
           { source: "Mining", sourceCountry: "PHL", target: "Processing", targetCountry: "JPN", value: 1600 },
-          { source: "Processing", sourceCountry: "CHN", target: "Manufacturing", targetCountry: "CHN", value: 1800 },
-          { source: "Processing", sourceCountry: "JPN", target: "Manufacturing", targetCountry: "KOR", value: 1500 },
-          { source: "Manufacturing", sourceCountry: "CHN", target: "Distribution", targetCountry: "USA", value: 1700 },
-          { source: "Manufacturing", sourceCountry: "KOR", target: "Distribution", targetCountry: "KOR", value: 1400 }
+          { source: "Processing", sourceCountry: "CHN", target: "Cathode", targetCountry: "CHN", value: 1800 },
+          { source: "Processing", sourceCountry: "JPN", target: "Cathode", targetCountry: "KOR", value: 1500 },
+          { source: "Cathode", sourceCountry: "CHN", target: "EV", targetCountry: "USA", value: 1700 },
+          { source: "Cathode", sourceCountry: "KOR", target: "EV", targetCountry: "KOR", value: 1400 }
         ]
       },
       2022: {
         links: [
           { source: "Mining", sourceCountry: "IDN", target: "Processing", targetCountry: "JPN", value: 2100 },
           { source: "Mining", sourceCountry: "PHL", target: "Processing", targetCountry: "JPN", value: 1800 },
-          { source: "Processing", sourceCountry: "JPN", target: "Manufacturing", targetCountry: "KOR", value: 2000 },
-          { source: "Processing", sourceCountry: "JPN", target: "Manufacturing", targetCountry: "CHN", value: 1700 },
-          { source: "Manufacturing", sourceCountry: "KOR", target: "Distribution", targetCountry: "KOR", value: 1900 },
-          { source: "Manufacturing", sourceCountry: "CHN", target: "Distribution", targetCountry: "USA", value: 1600 }
+          { source: "Processing", sourceCountry: "JPN", target: "Cathode", targetCountry: "KOR", value: 2000 },
+          { source: "Processing", sourceCountry: "JPN", target: "Cathode", targetCountry: "CHN", value: 1700 },
+          { source: "Cathode", sourceCountry: "KOR", target: "EV", targetCountry: "KOR", value: 1900 },
+          { source: "Cathode", sourceCountry: "CHN", target: "EV", targetCountry: "USA", value: 1600 }
         ]
       },
       2023: {
         links: [
           { source: "Mining", sourceCountry: "IDN", target: "Processing", targetCountry: "JPN", value: 2300 },
           { source: "Mining", sourceCountry: "PHL", target: "Processing", targetCountry: "JPN", value: 2000 },
-          { source: "Processing", sourceCountry: "JPN", target: "Manufacturing", targetCountry: "KOR", value: 2200 },
-          { source: "Processing", sourceCountry: "JPN", target: "Manufacturing", targetCountry: "CHN", value: 1900 },
-          { source: "Manufacturing", sourceCountry: "KOR", target: "Distribution", targetCountry: "KOR", value: 2100 },
-          { source: "Manufacturing", sourceCountry: "CHN", target: "Distribution", targetCountry: "USA", value: 1800 }
+          { source: "Processing", sourceCountry: "JPN", target: "Cathode", targetCountry: "KOR", value: 2200 },
+          { source: "Processing", sourceCountry: "JPN", target: "Cathode", targetCountry: "CHN", value: 1900 },
+          { source: "Cathode", sourceCountry: "KOR", target: "EV", targetCountry: "KOR", value: 2100 },
+          { source: "Cathode", sourceCountry: "CHN", target: "EV", targetCountry: "USA", value: 1800 }
         ]
       },
       2024: {
         links: [
           { source: "Mining", sourceCountry: "IDN", target: "Processing", targetCountry: "JPN", value: 2500 },
           { source: "Mining", sourceCountry: "PHL", target: "Processing", targetCountry: "JPN", value: 2200 },
-          { source: "Processing", sourceCountry: "JPN", target: "Manufacturing", targetCountry: "KOR", value: 2400 },
-          { source: "Processing", sourceCountry: "JPN", target: "Manufacturing", targetCountry: "CHN", value: 2100 },
-          { source: "Manufacturing", sourceCountry: "KOR", target: "Distribution", targetCountry: "KOR", value: 2300 },
-          { source: "Manufacturing", sourceCountry: "CHN", target: "Distribution", targetCountry: "USA", value: 2000 }
+          { source: "Processing", sourceCountry: "JPN", target: "Cathode", targetCountry: "KOR", value: 2400 },
+          { source: "Processing", sourceCountry: "JPN", target: "Cathode", targetCountry: "CHN", value: 2100 },
+          { source: "Cathode", sourceCountry: "KOR", target: "EV", targetCountry: "KOR", value: 2300 },
+          { source: "Cathode", sourceCountry: "CHN", target: "EV", targetCountry: "USA", value: 2000 }
         ]
       }
     }
