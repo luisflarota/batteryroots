@@ -65,6 +65,7 @@ const App = () => {
     const newMode = mode === 'light' ? 'dark' : 'light';
     setMode(newMode);
     localStorage.setItem('theme-mode', newMode);
+    document.documentElement.setAttribute('data-theme', newMode);
   };
 
   return (
@@ -77,37 +78,50 @@ const App = () => {
         display: 'flex', 
         flexDirection: 'column' 
       }}>
-        <Container maxWidth="xl" sx={{ flex: 1, py: 3 }}>
+        <Container 
+          maxWidth={false} 
+          disableGutters 
+          sx={{ 
+            flex: 1,
+            height: '100vh',
+            overflow: 'hidden',
+            p: 0
+          }}
+        >
           <Box sx={{ 
             bgcolor: 'background.paper', 
-            borderRadius: 3,
             p: 2,
-            mb: 3,
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'center',
+            borderBottom: 1,
+            borderColor: 'divider',
+            height: '64px'
           }}>
-            <IconButton 
-              onClick={toggleMode}
-              color="inherit"
-              sx={{ mr: 2 }}
-            >
-              {mode === 'light' ? <Brightness4Icon /> : <Brightness7Icon />}
-            </IconButton>
+            <Box sx={{ width: 48 }} />
             
             <Tabs 
               value={selectedTab} 
               onChange={(e, newValue) => setSelectedTab(newValue)} 
               centered
             >
-              <Tab label="Supply Chain Dashboard" />
-              <Tab label="Supply Chain Builder" />
+              <Tab label="Dashboard" />
+              <Tab label="Builder" />
             </Tabs>
             
-            <Box sx={{ width: 48 }} /> {/* Spacer for symmetry */}
+            <IconButton 
+              onClick={toggleMode}
+              color="inherit"
+              sx={{ width: 48 }}
+            >
+              {mode === 'light' ? <Brightness4Icon /> : <Brightness7Icon />}
+            </IconButton>
           </Box>
 
-          <Box sx={{ flex: 1 }}>
+          <Box sx={{ 
+            height: 'calc(100vh - 64px)',
+            overflow: 'hidden'
+          }}>
             {selectedTab === 0 ? (
               <Dashboard 
                 selectedCommodity={selectedCommodity}
@@ -121,6 +135,7 @@ const App = () => {
                 setCustomChain={setCustomChain}
                 connections={connections}
                 setConnections={setConnections}
+                mode={mode}
               />
             )}
           </Box>

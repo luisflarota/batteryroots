@@ -211,11 +211,10 @@ const FlowLines = ({ data, selectedStage, selectedYear, onStageSelect, isLegendS
   return null;
 };
 
-const WorldMap = ({ commodity, selectedStage, onStageSelect, customData }) => {
+const WorldMap = ({ commodity, selectedStage, onStageSelect, customData, selectedYear }) => {
   const theme = useTheme();
   const data = customData || supplyChainData[commodity];
   const [isLegendSelection, setIsLegendSelection] = useState(false);
-  const [sliderValue, setSliderValue] = useState(data?.years[0] || 2020);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [hoveredLocation, setHoveredLocation] = useState(null);
   const [isTooltipHovered, setIsTooltipHovered] = useState(false);
@@ -288,23 +287,13 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect, customData }) => {
         data={data}
       />
       
-      <Box sx={{ padding: 2 }}>
-        <Typography gutterBottom color="text.primary">Select Year</Typography>
-        <Slider
-          value={sliderValue}
-          onChange={(event, newValue) => setSliderValue(newValue)}
-          aria-labelledby="year-slider"
-          min={data.years[0]}
-          max={data.years[data.years.length - 1]}
-          step={1}
-          marks={data.years.map(year => ({ value: year, label: year }))}
-        />
-      </Box>
-
       <Box sx={{ flex: 1, position: 'relative' }}>
         <MapContainer
           center={[20, 0]}
           zoom={2}
+          minZoom={2}
+          maxBounds={[[-90, -180], [90, 180]]}
+          maxBoundsViscosity={1.0}
           style={{ height: '100%', width: '100%', position: 'relative', zIndex: 0 }}
           scrollWheelZoom={true}
         >
@@ -319,7 +308,7 @@ const WorldMap = ({ commodity, selectedStage, onStageSelect, customData }) => {
           <FlowLines 
             data={data} 
             selectedStage={selectedStage}
-            selectedYear={sliderValue}
+            selectedYear={selectedYear}
             onStageSelect={handleStageSelect}
             isLegendSelection={isLegendSelection}
             highlightedLinks={highlightedLinks}

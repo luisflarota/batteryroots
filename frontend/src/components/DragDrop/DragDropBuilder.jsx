@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Paper, Typography, FormControl, Select, MenuItem, Button, IconButton, InputLabel, TextField } from '@mui/material';
+import { Box, Paper, Typography, FormControl, Select, MenuItem, Button, IconButton, InputLabel, TextField, Drawer, List, ListItem, ListItemIcon, ListItemButton, Tooltip, Chip, Stack, Snackbar, Alert } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Xarrow, { Xwrapper } from 'react-xarrows';
 import LocationNode from './LocationNode';
@@ -7,10 +7,180 @@ import WorldMap from '../Dashboard/WorldMap';
 import { supplyChainData } from '../../data/dummy-data';
 import Autocomplete from '@mui/material/Autocomplete';
 import { useTheme } from '@mui/material/styles';
+import MenuIcon from '@mui/icons-material/Menu';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import SettingsIcon from '@mui/icons-material/Settings';
+import SaveIcon from '@mui/icons-material/Save';
+import RestoreIcon from '@mui/icons-material/Restore';
+import HelpIcon from '@mui/icons-material/Help';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const SUPPLY_CHAIN_STEPS = ['Mining', 'Processing', 'Cathode', 'EV'];
 
-const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
+const DRAWER_WIDTH = 240;
+const COLLAPSED_WIDTH = 56;
+
+const BuilderSidebar = ({ 
+  open, 
+  onToggle,
+  selectedCommodity,
+  onCommodityChange,
+  highlightedYear,
+  onHighlightYear,
+  showYearHighlight
+}) => {
+  // Get years from dummy data for the selected commodity
+  const years = selectedCommodity ? 
+    supplyChainData[selectedCommodity].years : 
+    [];
+
+  const handleYearClick = (year) => {
+    onHighlightYear(highlightedYear === year ? null : year);
+  };
+
+  return (
+    <Drawer
+      variant="permanent"
+      anchor="left"
+      open={open}
+      sx={{
+        width: open ? DRAWER_WIDTH : COLLAPSED_WIDTH,
+        flexShrink: 0,
+        '& .MuiDrawer-paper': {
+          width: open ? DRAWER_WIDTH : COLLAPSED_WIDTH,
+          boxSizing: 'border-box',
+          border: 'none',
+          bgcolor: 'background.paper',
+          boxShadow: 3,
+          height: '100%',
+          overflowX: 'hidden',
+          transition: theme => theme.transitions.create(['width'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.enteringScreen,
+          }),
+        },
+      }}
+    >
+      {open ? (
+        <>
+          <Box sx={{ 
+            p: 2,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <Typography variant="h6">Builder Settings</Typography>
+            <IconButton onClick={onToggle}>
+              <ChevronLeftIcon />
+            </IconButton>
+          </Box>
+
+          <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <FormControl fullWidth>
+              <InputLabel>Commodity</InputLabel>
+              <Select
+                value={selectedCommodity}
+                onChange={(e) => onCommodityChange(e.target.value)}
+                label="Commodity"
+              >
+                {Object.keys(supplyChainData).map((commodity) => (
+                  <MenuItem key={commodity} value={commodity}>
+                    {commodity}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <Box>
+              <Paper 
+                variant="outlined" 
+                sx={{ 
+                  p: 2,
+                  bgcolor: showYearHighlight ? 'primary.light' : 'transparent',
+                  transition: 'background-color 0.3s'
+                }}
+              >
+                <Typography 
+                  variant="subtitle1" 
+                  gutterBottom 
+                  color="text.secondary"
+                  sx={{ fontSize: '1.1rem', fontWeight: 500, mb: 2 }}
+                >
+                  Available Years
+                </Typography>
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                  {years.map(year => (
+                    <Chip
+                      key={year}
+                      label={year}
+                      onClick={() => handleYearClick(year)}
+                      color={highlightedYear === year ? "primary" : "default"}
+                      variant="outlined"
+                      sx={{ 
+                        mb: 1,
+                        fontSize: '1rem',
+                        height: 36,
+                        fontWeight: highlightedYear === year ? 'bold' : 'normal'
+                      }}
+                    />
+                  ))}
+                </Stack>
+              </Paper>
+            </Box>
+          </Box>
+        </>
+      ) : (
+        <List sx={{ p: 0 }}>
+          <ListItem disablePadding>
+            <Tooltip title="Settings" placement="right">
+              <ListItemButton onClick={onToggle}>
+                <ListItemIcon>
+                  <MenuIcon />
+                </ListItemIcon>
+              </ListItemButton>
+            </Tooltip>
+          </ListItem>
+          <ListItem disablePadding>
+            <Tooltip title="Save Chain" placement="right">
+              <ListItemButton>
+                <ListItemIcon>
+                  <SaveIcon />
+                </ListItemIcon>
+              </ListItemButton>
+            </Tooltip>
+          </ListItem>
+          <ListItem disablePadding>
+            <Tooltip title="Load Chain" placement="right">
+              <ListItemButton>
+                <ListItemIcon>
+                  <RestoreIcon />
+                </ListItemIcon>
+              </ListItemButton>
+            </Tooltip>
+          </ListItem>
+          <ListItem disablePadding>
+            <Tooltip title="Help" placement="right">
+              <ListItemButton>
+                <ListItemIcon>
+                  <HelpIcon />
+                </ListItemIcon>
+              </ListItemButton>
+            </Tooltip>
+          </ListItem>
+        </List>
+      )}
+    </Drawer>
+  );
+};
+
+const DragDropBuilder = ({ selectedCommodity, onCommodityChange, mode }) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [highlightedYear, setHighlightedYear] = useState(null);
+  const [showYearAlert, setShowYearAlert] = useState(false);
   const [inputYear, setInputYear] = useState(2024);
   const [selectedYears, setSelectedYears] = useState(new Set());
   const [editingYears, setEditingYears] = useState(new Set());
@@ -21,6 +191,7 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
   const [searchInputs, setSearchInputs] = useState({});
   const [autocompleteValue, setAutocompleteValue] = useState({});
   const [selectedForConnection, setSelectedForConnection] = useState(null);
+  const [showYearHighlight, setShowYearHighlight] = useState(false);
   const theme = useTheme();
 
   // Get current commodity's data
@@ -33,7 +204,28 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
   const connections = connectionsMap[selectedCommodity] || [];
   const usedCompanies = usedCompaniesMap[selectedCommodity] || new Set();
 
+  // Update initial selected year when commodity changes
+  React.useEffect(() => {
+    if (selectedCommodity && supplyChainData[selectedCommodity]) {
+      const commodityYears = supplyChainData[selectedCommodity].years;
+      setSelectedYear(commodityYears[commodityYears.length - 1]); // Set to most recent year
+    }
+  }, [selectedCommodity]);
+
   const handleCompanyClick = (location, step) => {
+    if (!highlightedYear) {
+      setShowYearAlert(true);
+      setShowYearHighlight(true);
+      if (!sidebarOpen) {
+        setSidebarOpen(true);
+      }
+      // Auto-hide the highlight after 4 seconds
+      setTimeout(() => {
+        setShowYearHighlight(false);
+      }, 2000);
+      return;
+    }
+
     if (!usedCompanies.has(`${location.company}-${location.site}`)) {
       // Update chain
       setCustomChains(prev => {
@@ -124,6 +316,39 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
   const handleRemoveCompany = (step, index) => {
     const removedCompany = customChain[step][index];
     
+    // First remove all connections involving this company
+    setConnectionsMap(prev => {
+      const currentConnections = prev[selectedCommodity] || [];
+      const nodeId = `${step}-${index}`;
+      
+      // Filter out connections involving the removed node
+      const filteredConnections = currentConnections.filter(conn => 
+        !conn.start.startsWith(`${step}-`) && !conn.end.startsWith(`${step}-`)
+      );
+      
+      // Update indices for remaining connections
+      const updatedConnections = filteredConnections.map(conn => {
+        let { start, end } = conn;
+        const [startStep, startIndex] = start.split('-');
+        const [endStep, endIndex] = end.split('-');
+        
+        if (startStep === step && parseInt(startIndex) > index) {
+          start = `${startStep}-${parseInt(startIndex) - 1}`;
+        }
+        if (endStep === step && parseInt(endIndex) > index) {
+          end = `${endStep}-${parseInt(endIndex) - 1}`;
+        }
+        
+        return { start, end };
+      });
+      
+      return {
+        ...prev,
+        [selectedCommodity]: updatedConnections
+      };
+    });
+    
+    // Then remove the company
     setCustomChains(prev => {
       const currentChain = prev[selectedCommodity];
       return {
@@ -135,37 +360,13 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
       };
     });
 
+    // Update used companies
     setUsedCompaniesMap(prev => {
       const currentUsed = new Set(prev[selectedCommodity]);
       currentUsed.delete(`${removedCompany.company}-${removedCompany.site}`);
       return {
         ...prev,
         [selectedCommodity]: currentUsed
-      };
-    });
-
-    setConnectionsMap(prev => {
-      const currentConnections = prev[selectedCommodity] || [];
-      const updatedConnections = currentConnections
-        .filter(conn => !conn.start.startsWith(`${step}-${index}`) && !conn.end.startsWith(`${step}-${index}`))
-        .map(conn => {
-          let { start, end } = conn;
-          const [startStep, startIndex] = start.split('-');
-          const [endStep, endIndex] = end.split('-');
-
-          if (startStep === step && parseInt(startIndex) > index) {
-            start = `${startStep}-${parseInt(startIndex) - 1}`;
-          }
-          if (endStep === step && parseInt(endIndex) > index) {
-            end = `${endStep}-${parseInt(endIndex) - 1}`;
-          }
-
-          return { start, end };
-        });
-
-      return {
-        ...prev,
-        [selectedCommodity]: updatedConnections
       };
     });
 
@@ -198,32 +399,50 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
   };
 
   const getCustomMapData = (year) => {
+    // Get the base data structure from dummy data
+    const dummyData = supplyChainData[selectedCommodity];
+    
+    // Get the flow values for the selected year
+    const yearData = dummyData.dataByYear[year];
+    
+    // Create a map of company+site to help identify our chain companies
+    const chainCompanies = {};
+    SUPPLY_CHAIN_STEPS.forEach(step => {
+      customChain[step].forEach(loc => {
+        chainCompanies[`${loc.company}-${loc.site}`] = {
+          step,
+          country: loc.country,
+          coordinates: loc.coordinates
+        };
+      });
+    });
+
+    // Filter locations to only include companies in our chain
+    const filteredLocations = {};
+    SUPPLY_CHAIN_STEPS.forEach(step => {
+      filteredLocations[step] = dummyData.locations[step].filter(loc => 
+        chainCompanies[`${loc.company}-${loc.site}`]
+      );
+    });
+
+    // Filter and map links to only include connections between our chain companies
+    const filteredLinks = yearData.links.filter(link => {
+      // Find the actual companies at source and target
+      const sourceCompany = customChain[link.source].find(loc => loc.country === link.sourceCountry);
+      const targetCompany = customChain[link.target].find(loc => loc.country === link.targetCountry);
+      
+      return sourceCompany && targetCompany;
+    });
+
     return {
-      nodes: SUPPLY_CHAIN_STEPS.map(id => ({ 
-        id, 
-        name: id, 
-        type: id === 'Mining' ? 'source' : id === 'EV' ? 'target' : 'process' 
-      })),
-      locations: customChain,
+      nodes: dummyData.nodes,
+      locations: filteredLocations,
+      years: [year],
       dataByYear: {
         [year]: {
-          links: connections.map(conn => {
-            const [sourceStep, sourceIndex] = conn.start.split('-');
-            const [targetStep, targetIndex] = conn.end.split('-');
-            const sourceLocation = customChain[sourceStep][parseInt(sourceIndex)];
-            const targetLocation = customChain[targetStep][parseInt(targetIndex)];
-            
-            return {
-              source: sourceStep,
-              sourceCountry: sourceLocation.country,
-              target: targetStep,
-              targetCountry: targetLocation.country,
-              value: 100
-            };
-          })
+          links: filteredLinks
         }
-      },
-      years: [year]
+      }
     };
   };
 
@@ -258,109 +477,59 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
 
     setSelectedYears(newSelectedYears);
     setEditingYears(newEditingYears);
+    setHighlightedYear(year);
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+    <Box sx={{ 
+      display: 'flex',
+      height: '100%',
+      width: '100%',
+      overflow: 'hidden'
+    }}>
+      <BuilderSidebar
+        open={sidebarOpen}
+        onToggle={() => setSidebarOpen(!sidebarOpen)}
+        selectedCommodity={selectedCommodity}
+        onCommodityChange={onCommodityChange}
+        highlightedYear={highlightedYear}
+        onHighlightYear={setHighlightedYear}
+        showYearHighlight={showYearHighlight}
+      />
+      
+      <Box sx={{ 
+        flexGrow: 1,
+        height: '100%',
+        transition: theme => theme.transitions.create(['margin', 'width'], {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.enteringScreen,
+        }),
+        p: 2
+      }}>
         <Box sx={{ 
           display: 'flex', 
-          justifyContent: 'flex-start',
+          justifyContent: 'flex-end',
           alignItems: 'center',
-          flexWrap: 'nowrap',
+          mb: 3,
           gap: 2
         }}>
-          <FormControl sx={{ minWidth: 200 }}>
-            <InputLabel id="commodity-select-label" sx={{ 
-              fontFamily: 'SF Mono, Menlo, monospace',
-              fontSize: '0.875rem'
-            }}>
-              Select Commodity
-            </InputLabel>
-            <Select
-              labelId="commodity-select-label"
-              value={selectedCommodity}
-              label="Select Commodity"
-              onChange={(e) => {
-                onCommodityChange(e.target.value);
-                setShowVisualization(false);
-                setSelectedForConnection(null);
-              }}
-              sx={{
-                fontFamily: 'SF Mono, Menlo, monospace',
-                fontSize: '0.875rem',
-                height: '48px'
-              }}
-            >
-              {Object.keys(supplyChainData).map(commodity => (
-                <MenuItem 
-                  key={commodity} 
-                  value={commodity}
-                  sx={{ 
-                    fontFamily: 'SF Mono, Menlo, monospace',
-                    fontSize: '0.875rem'
-                  }}
-                >
-                  {commodity}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <TextField
-            type="number"
-            value={inputYear}
-            onChange={handleInputYearChange}
-            label="Year"
-            variant="outlined"
-            sx={{ minWidth: 100 }}
-          />
-
-          {/* Year selection boxes */}
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            {yearOptions.map(year => (
-              <Paper 
-                key={year}
-                onClick={() => handleYearClick(year)}
-                sx={{ 
-                  padding: 2, 
-                  cursor: 'pointer', 
-                  bgcolor: selectedYears.has(year) ? 'primary.main' : (editingYears.has(year) ? 'primary.main' : 'grey.300'),
-                  color: selectedYears.has(year) || editingYears.has(year) ? 'white' : 'black',
-                  border: editingYears.has(year) ? '2px dashed yellow' : 'none',
-                  borderRadius: 1,
-                  textAlign: 'center',
-                  transition: 'background-color 0.3s',
-                  '&:hover': {
-                    bgcolor: selectedYears.has(year) ? 'primary.dark' : (editingYears.has(year) ? 'primary.main' : 'grey.400')
-                  }
-                }}
-              >
-                {year}
-              </Paper>
-            ))}
-          </Box>
+          <Button 
+            variant="contained"
+            color="primary"
+            startIcon={<SaveIcon />}
+            onClick={() => {/* TODO: Implement save functionality */}}
+          >
+            Save
+          </Button>
 
           <Button 
             variant="contained"
             disabled={!isChainValid()}
             onClick={() => setShowVisualization(true)}
-            sx={{ flexShrink: 0, marginLeft: 'auto' }}
+            startIcon={<VisibilityIcon />}
           >
             Visualize Chain
           </Button>
-        </Box>
-
-        {/* Legend for colors */}
-        <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Paper sx={{ bgcolor: 'primary.main', width: 20, height: 20, borderRadius: 1 }} />
-            <Typography variant="body2" sx={{ ml: 1 }}>Active Year</Typography>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Paper sx={{ border: '2px dashed yellow', width: 20, height: 20, borderRadius: 1 }} />
-            <Typography variant="body2" sx={{ ml: 1 }}>Editing Year</Typography>
-          </Box>
         </Box>
 
         <Xwrapper>
@@ -539,22 +708,71 @@ const DragDropBuilder = ({ selectedCommodity, onCommodityChange }) => {
             />
           ))}
         </Xwrapper>
-      </Box>
-      
-      {showVisualization && (
-        <Box sx={{ mt: 4, border: 1, borderColor: 'divider', borderRadius: 1, p: 2 }}>
-          <Typography variant="h6" gutterBottom>
-            Custom Supply Chain for {inputYear}
-          </Typography>
-          <Box sx={{ height: '80vh' }}>
-            <WorldMap
-              commodity={selectedCommodity}
-              customData={getCustomMapData(inputYear)}
-              isCustomView={true}
-            />
+
+        {showVisualization && (
+          <Box sx={{ 
+            position: 'absolute',
+            top: '64px',
+            left: sidebarOpen ? DRAWER_WIDTH : COLLAPSED_WIDTH,
+            right: 0,
+            bottom: 0,
+            bgcolor: 'background.paper',
+            zIndex: 1200,
+            p: 2,
+            overflow: 'auto',
+            transition: theme => theme.transitions.create(['left'], {
+              easing: theme.transitions.easing.sharp,
+              duration: theme.transitions.duration.enteringScreen,
+            })
+          }}>
+            <Box sx={{ 
+              display: 'flex',
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+              mb: 2
+            }}>
+              <Button
+                startIcon={<ArrowBackIcon />}
+                onClick={() => setShowVisualization(false)}
+                sx={{ color: 'text.primary' }}
+              >
+                Go Back
+              </Button>
+            </Box>
+            
+            <Box sx={{ height: 'calc(100% - 48px)' }}>
+              <WorldMap
+                commodity={selectedCommodity}
+                data={getCustomMapData(highlightedYear)}
+                selectedYear={highlightedYear}
+                showLegend={true}
+                isCustomView={true}
+              />
+            </Box>
           </Box>
-        </Box>
-      )}
+        )}
+      </Box>
+
+      <Snackbar 
+        open={showYearAlert} 
+        autoHideDuration={2000} 
+        onClose={() => setShowYearAlert(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={() => setShowYearAlert(false)} 
+          severity="info" 
+          variant="filled"
+          sx={{ 
+            width: '100%',
+            '& .MuiAlert-message': {
+              fontSize: '1rem'
+            }
+          }}
+        >
+          Please select a year in the builder settings panel {!sidebarOpen && '(click the menu icon on the left)'}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
